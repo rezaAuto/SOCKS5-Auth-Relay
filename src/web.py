@@ -336,6 +336,70 @@ def _system_snapshot_dict() -> dict:
     }
 
 
+def _stats_snapshot_dict(listen_addr: str, upstream_addr: str) -> dict:
+    up_bps = float(STATS.spark_up[-1]) if STATS.spark_up else float(STATS.ema_up_bps)
+    down_bps = float(STATS.spark_down[-1]) if STATS.spark_down else float(STATS.ema_down_bps)
+
+    hosts = []
+    for host, hs in sorted(
+        STATS.hosts.items(),
+        key=lambda item: (-(item[1].bytes_up + item[1].bytes_down), item[0].lower()),
+    ):
+        geo = _geo_for(host)
+        hosts.append({
+            "host": host,
+            "up": int(hs.bytes_up),
+            "down": int(hs.bytes_down),
+            "active": int(hs.active),
+            "total": int(hs.total),
+            "cc": geo.get("cc", ""),
+            "country": geo.get("country", ""),
+        })
+
+    clients = []
+    for ip, cs in sorted(
+        STATS.clients.items(),
+        key=lambda item: (-(item[1].bytes_up + item[1].bytes_down), item[0]),
+    ):
+        clients.append({
+            "ip": ip,
+            "bytes_up": int(cs.bytes_up),
+            "bytes_down": int(cs.bytes_down),
+            "active_tunnels": int(cs.active_tunnels),
+            "total_tunnels": int(cs.total_tunnels),
+        })
+
+    return {
+        "listen": listen_addr,
+        "upstream": upstream_addr,
+        "uptime": max(0.0, time.monotonic() - STATS.started_at),
+        "up_bps": max(0.0, up_bps),
+        "down_bps": max(0.0, down_bps),
+        "peak_up_bps": max(0.0, float(STATS.peak_up_bps)),
+        "peak_down_bps": max(0.0, float(STATS.peak_down_bps)),
+        "avg_up_bps": max(0.0, float(STATS.ema_up_bps)),
+        "avg_down_bps": max(0.0, float(STATS.ema_down_bps)),
+        "bytes_up": int(STATS.bytes_up),
+        "bytes_down": int(STATS.bytes_down),
+        "active": int(STATS.active),
+        "peak_active": int(STATS.peak_active),
+        "total": int(STATS.total),
+        "errors": int(STATS.errors),
+        "auth_fail": int(STATS.auth_fail),
+        "refused": int(STATS.refused),
+        "reset": int(STATS.reset),
+        "conns_per_sec": float(STATS.conns_per_sec),
+        "host_count": len(hosts),
+        "client_count": len(clients),
+        "spark_up": [float(v) for v in STATS.spark_up],
+        "spark_down": [float(v) for v in STATS.spark_down],
+        "hosts": hosts,
+        "clients": clients,
+        "system": _system_snapshot_dict(),
+        "controls": _controls_snapshot_dict(),
+    }
+
+
 def _controls_snapshot_dict() -> dict:
     username = ""
     password = ""
