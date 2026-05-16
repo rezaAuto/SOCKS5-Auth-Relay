@@ -63,71 +63,47 @@ def _ft_to_int(ft: _FILETIME) -> int:
 
 
 def _windows_cpu_percent() -> float:
-    global _WIN_CPU_LAST, _WIN_CPU_LAST_PCT
-    try:
-        kernel32 = ctypes.windll.kernel32
-        idle_ft = _FILETIME()
-        kernel_ft = _FILETIME()
-        user_ft = _FILETIME()
-        ok = kernel32.GetSystemTimes(
-            ctypes.byref(idle_ft),
-            ctypes.byref(kernel_ft),
-            ctypes.byref(user_ft),
-        )
-        if not ok:
-            return _WIN_CPU_LAST_PCT
-        idle = _ft_to_int(idle_ft)
-        kernel = _ft_to_int(kernel_ft)
-        user = _ft_to_int(user_ft)
-    except Exception:
-        return _WIN_CPU_LAST_PCT
+    global _WIN_CPU_LAST_PCT
+
+    def _sample() -> tuple[int, int, int] | None:
+        try:
+            kernel32 = ctypes.windll.kernel32
+            idle_ft = _FILETIME()
+            kernel_ft = _FILETIME()
+            user_ft = _FILETIME()
+            ok = kernel32.GetSystemTimes(
+                ctypes.byref(idle_ft),
+                ctypes.byref(kernel_ft),
+                ctypes.byref(user_ft),
+            )
+            if not ok:
+                return None
+            return _ft_to_int(idle_ft), _ft_to_int(kernel_ft), _ft_to_int(user_ft)
+        except Exception:
+            return None
 
     with _WIN_CPU_LOCK:
-        if _WIN_CPU_LAST is None:
-            t0 = time.perf_counter()
-            idle2, kernel2, user2 = idle, kernel, user
-            while (time.perf_counter() - t0) < 0.03:
-                pass
-            try:
-                idle_ft2 = _FILETIME()
-                kernel_ft2 = _FILETIME()
-                user_ft2 = _FILETIME()
-                ok2 = ctypes.windll.kernel32.GetSystemTimes(
-                    ctypes.byref(idle_ft2),
-                    ctypes.byref(kernel_ft2),
-                    ctypes.byref(user_ft2),
-                )
-                if ok2:
-                    idle2 = _ft_to_int(idle_ft2)
-                    kernel2 = _ft_to_int(kernel_ft2)
-                    user2 = _ft_to_int(user_ft2)
-            except Exception:
-                pass
-
-            d_idle = max(0, idle2 - idle)
-            d_kernel = max(0, kernel2 - kernel)
-            d_user = max(0, user2 - user)
-            d_total = d_kernel + d_user
-            if d_total > 0:
-                busy = max(0, d_total - d_idle)
-                _WIN_CPU_LAST_PCT = max(0.0, min(100.0, (busy / d_total) * 100.0))
-            else:
-                _WIN_CPU_LAST_PCT = 0.0
-            _WIN_CPU_LAST = (idle2, kernel2, user2)
+        first = _sample()
+        if first is None:
             return _WIN_CPU_LAST_PCT
 
-        prev_idle, prev_kernel, prev_user = _WIN_CPU_LAST
-        delta_idle = max(0, idle - prev_idle)
-        delta_kernel = max(0, kernel - prev_kernel)
-        delta_user = max(0, user - prev_user)
+        time.sleep(0.08)
+
+        second = _sample()
+        if second is None:
+            return _WIN_CPU_LAST_PCT
+
+        idle1, kernel1, user1 = first
+        idle2, kernel2, user2 = second
+        delta_idle = max(0, idle2 - idle1)
+        delta_kernel = max(0, kernel2 - kernel1)
+        delta_user = max(0, user2 - user1)
         total = delta_kernel + delta_user
         if total <= 0:
-            pct = _WIN_CPU_LAST_PCT
-        else:
-            busy = max(0, total - delta_idle)
-            pct = (busy / total) * 100.0
-        pct = max(0.0, min(100.0, float(pct)))
-        _WIN_CPU_LAST = (idle, kernel, user)
+            return _WIN_CPU_LAST_PCT
+
+        busy = max(0, total - delta_idle)
+        pct = max(0.0, min(100.0, (busy / total) * 100.0))
         _WIN_CPU_LAST_PCT = pct
         return pct
 
@@ -298,7 +274,6 @@ def _geo_for(host_port: str) -> dict[str, str]:
 
 def _system_snapshot_dict() -> dict:
     cpu_count = max(1, os.cpu_count() or 1)
-    cpu_percent = 0.0
     if os.name == "nt":
         cpu_percent = _windows_cpu_percent()
     else:
@@ -358,88 +333,6 @@ def _system_snapshot_dict() -> dict:
         "swap_total": swap_total,
         "storage_used": storage_used,
         "storage_total": storage_total,
-    }
-
-
-def _stats_snapshot_dict(listen_addr: str = "", upstream_addr: str = "") -> dict:
-    now = time.monotonic()
-    started_at = float(getattr(STATS, "started_at", now))
-    uptime = now - started_at
-
-    spark_up = list(getattr(STATS, "spark_up", []) or [])
-    spark_down = list(getattr(STATS, "spark_down", []) or [])
-    up_bps = spark_up[-1] if spark_up else 0.0
-    down_bps = spark_down[-1] if spark_down else 0.0
-
-    hosts_map = getattr(STATS, "hosts", {}) or {}
-    clients_map = getattr(STATS, "clients", {}) or {}
-
-    bytes_up = int(getattr(STATS, "bytes_up", 0) or 0)
-    bytes_down = int(getattr(STATS, "bytes_down", 0) or 0)
-
-    hosts = sorted(
-        hosts_map.items(),
-        key=lambda kv: kv[1].bytes_up + kv[1].bytes_down,
-        reverse=True,
-    )[:20]
-
-    clients = sorted(
-        clients_map.items(),
-        key=lambda kv: kv[1].bytes_up + kv[1].bytes_down,
-        reverse=True,
-    )[:50]
-
-    return {
-        "listen": listen_addr,
-        "upstream": upstream_addr,
-        "uptime": uptime,
-        "bytes_up": bytes_up,
-        "bytes_down": bytes_down,
-        "up_bps": up_bps,
-        "down_bps": down_bps,
-        "peak_up_bps": float(getattr(STATS, "peak_up_bps", 0.0) or 0.0),
-        "peak_down_bps": float(getattr(STATS, "peak_down_bps", 0.0) or 0.0),
-        "avg_up_bps": bytes_up / max(uptime, 1e-6),
-        "avg_down_bps": bytes_down / max(uptime, 1e-6),
-        "ema_up_bps": float(getattr(STATS, "ema_up_bps", 0.0) or 0.0),
-        "ema_down_bps": float(getattr(STATS, "ema_down_bps", 0.0) or 0.0),
-        "active": int(getattr(STATS, "active", 0) or 0),
-        "peak_active": int(getattr(STATS, "peak_active", 0) or 0),
-        "total": int(getattr(STATS, "total", 0) or 0),
-        "tcp_connections": int(getattr(STATS, "tcp_connections", 0) or 0),
-        "conns_per_sec": float(getattr(STATS, "conns_per_sec", 0.0) or 0.0),
-        "errors": int(getattr(STATS, "errors", 0) or 0),
-        "auth_fail": int(getattr(STATS, "auth_fail", 0) or 0),
-        "refused": int(getattr(STATS, "refused", 0) or 0),
-        "reset": int(getattr(STATS, "reset", 0) or 0),
-        "host_count": len(hosts_map),
-        "hosts": [
-            {
-                "host": host,
-                "up": hs.bytes_up,
-                "down": hs.bytes_down,
-                "active": hs.active,
-                "total": hs.total,
-                **_geo_for(host),
-            }
-            for host, hs in hosts
-        ],
-        "client_count": len(clients_map),
-        "clients": [
-            {
-                "ip": cs.ip,
-                "bytes_up": cs.bytes_up,
-                "bytes_down": cs.bytes_down,
-                "active_tunnels": cs.active_tunnels,
-                "total_tunnels": cs.total_tunnels,
-                "last_activity": cs.last_activity_ts,
-            }
-            for _, cs in clients
-        ],
-        "spark_up": spark_up,
-        "spark_down": spark_down,
-        "system": _system_snapshot_dict(),
-        "controls": _controls_snapshot_dict(),
     }
 
 

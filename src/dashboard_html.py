@@ -6,9 +6,6 @@ _WEB_INDEX_HTML = r"""<!doctype html>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>SOCKS5 relay · live traffic</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script>
   // Apply saved theme before first paint to avoid flash.
   (function(){try{var t=localStorage.getItem("s5theme")||"dark";
@@ -34,8 +31,8 @@ _WEB_INDEX_HTML = r"""<!doctype html>
   --glow-down:0 0 24px rgba(90,200,250,.28);
   --glow-good:0 0 24px rgba(150,220,130,.28);
   --glow-bad:0 0 24px rgba(240,120,120,.28);
-  --font:"Inter","Segoe UI Variable","Segoe UI",ui-sans-serif,system-ui,-apple-system,Roboto,sans-serif;
-  --mono:"JetBrains Mono","Cascadia Code",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --font:"Segoe UI Variable","Segoe UI",Tahoma,ui-sans-serif,system-ui,-apple-system,Roboto,sans-serif;
+  --mono:"Cascadia Mono","Cascadia Code","Consolas",ui-monospace,SFMono-Regular,monospace;
 }
 html[data-theme="light"]{
   --bg:#f4f6fb; --panel:#ffffff; --panel2:#f7f9fd; --border:#dfe4ef;
