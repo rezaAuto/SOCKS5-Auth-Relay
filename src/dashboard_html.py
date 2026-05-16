@@ -7,7 +7,6 @@ _WEB_INDEX_HTML = r"""<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>SOCKS5 relay · live traffic</title>
 <script>
-  // Apply saved theme before first paint to avoid flash.
   (function(){try{var pref=localStorage.getItem("s5themePref")||localStorage.getItem("s5theme")||"dark";
     var p=localStorage.getItem("s5palette")||"aurora";
     var f=localStorage.getItem("s5font")||"default";
@@ -223,7 +222,6 @@ html[data-theme="light"][data-accent="lava"]{
   --title-grad-start:#431407; --title-grad-end:#b91c1c;
   --bg-glow-a:rgba(239,68,68,.10); --bg-glow-b:rgba(249,115,22,.08); --bg-glow-c:rgba(251,113,133,.08);
 }
-/* ---- light-theme overrides for hard-coded dark surfaces ----------- */
 html[data-theme="light"] .title h1{background:linear-gradient(135deg,var(--title-grad-start),var(--title-grad-end));
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 html[data-theme="light"] input[type="number"],
@@ -448,7 +446,6 @@ svg{display:block}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;border:2px solid var(--bg)}
 ::-webkit-scrollbar-thumb:hover{background:#3a4458}
 
-/* ---- controls panel ------------------------------------------------- */
 .ctrl{display:flex;flex-direction:column;gap:12px}
 .ctrl-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .ctrl-row .lbl{font-size:13px}
@@ -526,7 +523,6 @@ input[type="number"]:focus,input[type="text"]:focus,input[type="password"]:focus
   margin-bottom:18px;font-size:13px;box-shadow:var(--sh-md),0 0 24px rgba(240,200,100,.1)}
 .paused-banner.show{display:block;animation:fadein .3s ease}
 
-/* ---- config generator console blocks ------------------------------ */
 .cfg-block{margin-top:14px;border:1px solid var(--border);border-radius:12px;
   background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--panel2);
   box-shadow:var(--sh-sm),var(--sh-inset);overflow:hidden}
@@ -545,7 +541,6 @@ pre.console::-webkit-scrollbar{width:10px;height:10px}
 pre.console::-webkit-scrollbar-track{background:#050709}
 pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#0d141c);border-radius:8px;border:1px solid var(--border-soft)}
 
-/* ---- tabs ---------------------------------------------------------- */
 .tabs{display:flex;gap:4px;margin-bottom:24px;
   background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--panel2);
   padding:6px;border-radius:14px;border:1px solid var(--border);
@@ -572,7 +567,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 @keyframes fadein { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:translateY(0) } }
 .section-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
 
-/* ---- UX helpers ---------------------------------------------------- */
 .ux-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .ux-intro .copy{min-width:240px;flex:1}
 .ux-intro .title{font-size:14px;font-weight:700;letter-spacing:.01em;color:var(--text);margin:0 0 4px}
@@ -1042,13 +1036,11 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 (() => {
   const $ = id => document.getElementById(id);
 
-  // ---------------- tabs ----------------
   const tabs = document.querySelectorAll(".tab");
   const panes = document.querySelectorAll(".tab-pane");
   const setActiveTab = (name) => {
     tabs.forEach(x => x.classList.toggle("active", x.dataset.tab === name));
     panes.forEach(p => p.classList.toggle("active", p.id === "pane-" + name));
-    // Chart canvas can't measure itself while hidden — refit when shown.
     if (name === "overview") requestAnimationFrame(fit);
   };
   tabs.forEach(t => t.addEventListener("click", () => setActiveTab(t.dataset.tab)));
@@ -1056,7 +1048,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   $("goHosts").addEventListener("click", () => setActiveTab("hosts"));
   $("goNetwork").addEventListener("click", () => setActiveTab("network"));
 
-  // ---------------- card spotlight hover ----------------
   document.addEventListener("mousemove", e => {
     const card = e.target.closest && e.target.closest(".card");
     if (!card) return;
@@ -1432,7 +1423,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
         if (i===0) cx.moveTo(x,y); else cx.lineTo(x,y);
       });
       cx.stroke();
-      // fill
       const g = cx.createLinearGradient(0,0,0,h);
       g.addColorStop(0, color + "55"); g.addColorStop(1, color + "00");
       cx.lineTo(w-pad, h-pad); cx.lineTo(pad, h-pad); cx.closePath();
@@ -1448,7 +1438,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     const mx = Math.max(1, ...hosts.map(h => h.up + h.down));
     const flagOf = cc => {
       if (!cc || cc.length !== 2) return "";
-      const A = 127397; // regional indicator offset
+      const A = 127397;
       return String.fromCodePoint(cc.charCodeAt(0)+A) + String.fromCodePoint(cc.charCodeAt(1)+A);
     };
     tb.innerHTML = hosts.map((h,i) => {
@@ -1561,7 +1551,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     }
   };
 
-  // ---------------- controls (toggles / forms / kill) ----------------
   let lastCtrl = {};
   let portDirty = false, limitDirty = false, userDirty = false, bwDirty = false;
   let connTotalDirty = false, connPerDirty = false;
@@ -1572,7 +1561,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   $("connTotalInput").addEventListener("input", () => connTotalDirty = true);
   $("connPerInput").addEventListener("input", () => connPerDirty = true);
 
-  // ---------- theme selector ----------
   const themeModeLabel = $("themeModeLabel");
   const themeLauncher = $("themeLauncher");
   const themePanel = $("themePanel");
@@ -1709,22 +1697,17 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     $("bypassBadge").textContent = "bypassed " + (c.bypassed || 0)
       + (c.bypassed_active ? " (" + c.bypassed_active + " live)" : "");
 
-    // master proxy toggle — green when ON, gray (off) when paused
     const tgP = $("tgProxy");
     tgP.classList.toggle("ok", !!c.proxy_enabled);
     tgP.classList.remove("danger");
     $("pausedBanner").classList.toggle("show", !c.proxy_enabled);
 
-    // whitelist master
     $("tgWhitelist").classList.toggle("on", !!c.whitelist_enabled);
-    // whitelist strict — color red when armed, since it actively blocks
     const tgS = $("tgStrict");
     tgS.classList.toggle("on", !!c.whitelist_strict);
     tgS.classList.toggle("danger", !!c.whitelist_strict);
-    // .ir redirect — accent-green, independent of whitelist
     $("tgIr").classList.toggle("ok", !!c.ir_redirect);
 
-    // presets
     const presets = c.presets || {};
     const counts  = c.preset_domains || {};
     const cidrCounts = c.preset_cidrs || {};
@@ -1739,10 +1722,8 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       }
     });
 
-    // port input (don't clobber while user is editing)
     if (!portDirty) $("portInput").value = c.listen_port || "";
 
-    // current username display + input
     const u = c.username || "";
     const pw = c.password || "";
     $("currentUser").textContent = u || "—";
@@ -1752,7 +1733,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     $("credsPass").textContent = revealed ? (pw || "—") : (pw ? "•".repeat(Math.min(pw.length, 12)) : "—");
     if (!userDirty) $("userInput").value = u;
 
-    // traffic limit
     const lim = c.traffic_limit_bytes || 0;
     if (!limitDirty) $("limitInput").value = lim ? (lim / (1024*1024)).toFixed(0) : "";
     const bar = $("limitBar"), ls = $("limitStatus");
@@ -1768,7 +1748,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       ls.classList.remove("bad");
     }
 
-    // bandwidth cap
     const bps = c.bandwidth_limit_bps || 0;
     if (!bwDirty) $("bwInput").value = bps ? Math.round(bps / 1024) : "";
     const bwS = $("bwStatus");
@@ -1779,7 +1758,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       bwS.textContent = "no bandwidth cap · all tunnels share this limit";
     }
 
-    // connection caps
     const ct = c.max_conn_total || 0;
     const cp = c.max_conn_per_client || 0;
     if (!connTotalDirty) $("connTotalInput").value = ct || "";
@@ -1791,18 +1769,14 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     $("connStatus").textContent = (parts.length ? parts.join(" · ") : "no caps set")
       + (refused ? `  ·  refused: ${refused}` : "");
 
-    // geoip toggle
     $("tgGeoip").classList.toggle("ok", !!c.geoip_enabled);
 
-    // auth-required toggle — green when auth required (default/safe),
-    // red/danger when disabled because it's an insecure state.
     const tgA = $("tgAuth");
     const authOn = c.auth_required !== false;
     tgA.classList.toggle("ok", authOn);
     tgA.classList.toggle("danger", !authOn);
   };
 
-  // wire toggles
   $("tgProxy").addEventListener("click",
     () => post("set_proxy", {enabled: !lastCtrl.proxy_enabled}));
   $("tgWhitelist").addEventListener("click",
@@ -1827,7 +1801,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     });
   });
 
-  // port change
   $("portBtn").addEventListener("click", async () => {
     const port = parseInt($("portInput").value, 10);
     if (!port || port < 1 || port > 65535) { alert("Port must be 1-65535"); return; }
@@ -1836,7 +1809,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     if (j && j.ok === false) alert("Port change failed: " + (j.error || "unknown"));
   });
 
-  // upstream check
   $("upstreamCheckBtn").addEventListener("click", async () => {
     const btn = $("upstreamCheckBtn");
     const st = $("upstreamCheckStatus");
@@ -1863,7 +1835,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     }
   });
 
-  // traffic limit
   $("limitBtn").addEventListener("click", async () => {
     const mb = parseFloat($("limitInput").value);
     if (isNaN(mb) || mb < 0) { alert("Enter a non-negative MB value"); return; }
@@ -1876,7 +1847,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     limitDirty = false;
   });
 
-  // bandwidth cap
   $("bwBtn").addEventListener("click", async () => {
     const kbps = parseFloat($("bwInput").value);
     if (isNaN(kbps) || kbps < 0) { alert("Enter a non-negative KB/s value"); return; }
@@ -1889,7 +1859,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     bwDirty = false;
   });
 
-  // connection caps
   $("connTotalBtn").addEventListener("click", async () => {
     const v = parseInt($("connTotalInput").value, 10);
     if (isNaN(v) || v < 0) { alert("Enter a non-negative integer"); return; }
@@ -1903,12 +1872,10 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     connPerDirty = false;
   });
 
-  // geoip toggle
   $("tgGeoip").addEventListener("click", () => {
     post("set_geoip", {enabled: !lastCtrl.geoip_enabled});
   });
 
-  // auth-required toggle — confirm before disabling, since it's risky.
   $("tgAuth").addEventListener("click", () => {
     const turningOff = lastCtrl.auth_required !== false;
     if (turningOff && !confirm(
@@ -1920,14 +1887,12 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     post("set_auth_required", {enabled: !turningOff});
   });
 
-  // reset counters
   $("resetBtn").addEventListener("click", async () => {
     if (confirm("Reset all traffic counters (up/down totals, peaks, per-host)?")) {
       await post("reset_traffic");
     }
   });
 
-  // kill switch
   $("killBtn").addEventListener("click", async () => {
     if (!confirm("⚠ This will TERMINATE the relay process immediately.\nAll active tunnels will drop. Continue?")) return;
     await post("kill");
@@ -1935,7 +1900,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     $("statusText").textContent = "terminated";
   });
 
-  // live credential rotation
   $("passReveal").addEventListener("click", () => {
     const p = $("passInput");
     p.type = (p.type === "password") ? "text" : "password";
@@ -1998,7 +1962,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     }
   });
 
-  // ---------------- config generator ----------------
   const cfgBuild = () => {
     const host = ($("cfgHost").value || "").trim();
     const port = parseInt($("cfgPort").value, 10);
@@ -2021,10 +1984,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 
     const pwShown = pass;
 
-    // 1) V2Ray / Xray full config (standalone, runnable)
-    //    - inbounds: local socks (10808) + http (10809) so apps can connect
-    //    - outbound: this SOCKS relay
-    //    - routing: direct for private/LAN, blackhole for ads/private blocked dst
     const v2 = {
       log: { loglevel: "warning" },
       inbounds: [
@@ -2071,9 +2030,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     };
     $("outV2ray").textContent = JSON.stringify(v2, null, 2);
 
-    // 2) Telegram SOCKS5 link
-    //    https://t.me/socks?server=...&port=...&user=...&pass=...
-    //    also tg://socks?... scheme (opens Telegram directly)
     const tgParams = new URLSearchParams({
       server: host, port: String(port), user: user, pass: pwShown
     }).toString();
@@ -2081,24 +2037,16 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       "https://t.me/socks?" + tgParams + "\n" +
       "tg://socks?" + tgParams;
 
-    // 3) SOCKS URI — v2rayN / v2rayNG style: socks://base64(user:pass)@host:port#remark
-    //    NOTE: classic socks5://user:pass@host:port works for curl/Xray but
-    //    v2rayN/NG only import the base64 form, so we emit that as the canonical URI.
     const enc = encodeURIComponent;
-    // Use the modern, URL-safe-ish base64 of the raw "user:pass" string.
-    // btoa() handles ASCII; for multi-byte chars, encode UTF-8 first.
     const utf8 = new TextEncoder().encode(user + ":" + pwShown);
     let bin = "";
     for (let i = 0; i < utf8.length; i++) bin += String.fromCharCode(utf8[i]);
-    const b64 = btoa(bin); // standard base64 with padding
+    const b64 = btoa(bin);
     const remark = enc(tag);
     $("outUri").textContent =
       `socks://${b64}@${host}:${port}#${remark}\n` +
       `socks5://${enc(user)}:${enc(pwShown)}@${host}:${port}`;
 
-    // 4) Windows CMD curl test
-    //    For URI-style flags we URL-encode user/pass so chars like '@' don't
-    //    confuse the parser. --proxy-user takes the raw values.
     $("outCurl").textContent =
       `curl -x socks5h://${enc(user)}:${enc(pwShown)}@${host}:${port} https://ifconfig.me\n` +
       `curl --proxy-user ${user}:${pwShown} --socks5-hostname ${host}:${port} https://api.ipify.org`;
@@ -2110,7 +2058,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   $("cfgTag").addEventListener("keydown",  e => { if (e.key === "Enter") cfgBuild(); });
 
   $("cfgFillMine").addEventListener("click", () => {
-    // best-effort: use the hostname the dashboard was loaded from
     $("cfgHost").value = location.hostname || "";
     if (!$("cfgPort").value && lastCtrl && lastCtrl.listen_port) {
       $("cfgPort").value = lastCtrl.listen_port;
@@ -2118,7 +2065,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     cfgBuild();
   });
 
-  // Copy buttons (shared for all cfg outputs)
   document.querySelectorAll(".cfg-copy").forEach(btn => {
     btn.addEventListener("click", async () => {
       const tgt = $(btn.dataset.target);
@@ -2127,7 +2073,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       try {
         await navigator.clipboard.writeText(text);
       } catch (e) {
-        // fallback for non-secure contexts
         const ta = document.createElement("textarea");
         ta.value = text; document.body.appendChild(ta);
         ta.select(); try { document.execCommand("copy"); } catch(_){}
@@ -2140,7 +2085,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     });
   });
 
-  // Pre-fill default port from controls snapshot once it arrives
   const cfgSeed = setInterval(() => {
     if (lastCtrl && lastCtrl.listen_port) {
       if (!$("cfgPort").value) $("cfgPort").value = lastCtrl.listen_port;
@@ -2149,7 +2093,6 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     }
   }, 500);
 
-  // Check if auth is required on startup
   const checkAuthRequired = async () => {
     try {
       const r = await fetch('/api/stats', {cache:'no-store'});
