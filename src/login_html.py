@@ -56,6 +56,6 @@ button:active{transform:translateY(1px)}
 
 
 def render_login_page(error: str = "") -> bytes:
-  """Render login HTML bytes with safe inline error substitution."""
+    """Render login HTML bytes with safe inline error substitution."""
     safe = (error or "").replace("<", "&lt;").replace(">", "&gt;")
     return LOGIN_HTML.replace("__ERROR__", safe).encode("utf-8")
