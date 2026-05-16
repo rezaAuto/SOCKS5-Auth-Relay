@@ -8,10 +8,15 @@ _WEB_INDEX_HTML = r"""<!doctype html>
 <title>SOCKS5 relay · live traffic</title>
 <script>
   // Apply saved theme before first paint to avoid flash.
-  (function(){try{var t=localStorage.getItem("s5theme")||"dark";
+  (function(){try{var pref=localStorage.getItem("s5themePref")||localStorage.getItem("s5theme")||"dark";
     var p=localStorage.getItem("s5palette")||"aurora";
+    var f=localStorage.getItem("s5font")||"default";
+    var t=(pref==="auto")
+      ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+      : pref;
     document.documentElement.setAttribute("data-theme",t);
-    document.documentElement.setAttribute("data-accent",p);}catch(e){}})();
+    document.documentElement.setAttribute("data-accent",p);
+    document.documentElement.setAttribute("data-font",f);}catch(e){}})();
 </script>
 <style>
 :root{
@@ -32,6 +37,7 @@ _WEB_INDEX_HTML = r"""<!doctype html>
   --glow-good:0 0 24px rgba(150,220,130,.28);
   --glow-bad:0 0 24px rgba(240,120,120,.28);
   --font:"Segoe UI Variable","Segoe UI",Tahoma,ui-sans-serif,system-ui,-apple-system,Roboto,sans-serif;
+  --title-font:"Segoe UI Variable","Segoe UI",ui-sans-serif,system-ui,sans-serif;
   --mono:"Cascadia Mono","Cascadia Code","Consolas",ui-monospace,SFMono-Regular,monospace;
 }
 html[data-theme="light"]{
@@ -68,6 +74,56 @@ html[data-theme="light"] body{background:
   radial-gradient(900px 600px at 50% 120%,var(--bg-glow-c),transparent 60%),
   var(--bg)}
 html[data-theme="light"] .orbs{opacity:.25;filter:blur(100px)}
+html[data-font="default"]{
+  --font:"Segoe UI Variable","Segoe UI",Tahoma,ui-sans-serif,system-ui,-apple-system,Roboto,sans-serif;
+  --title-font:"Segoe UI Variable","Segoe UI",ui-sans-serif,system-ui,sans-serif;
+  --mono:"Cascadia Mono","Cascadia Code","Consolas",ui-monospace,SFMono-Regular,monospace;
+}
+html[data-font="modern"]{
+  --font:"Bahnschrift","Segoe UI Variable","Segoe UI","Trebuchet MS",ui-sans-serif,system-ui,sans-serif;
+  --title-font:"Bahnschrift","Segoe UI Variable","Segoe UI",ui-sans-serif,sans-serif;
+  --mono:"Cascadia Code","Consolas","Lucida Console",ui-monospace,monospace;
+}
+html[data-font="classic"]{
+  --font:"Trebuchet MS","Verdana","Segoe UI",ui-sans-serif,system-ui,sans-serif;
+  --title-font:"Trebuchet MS","Verdana","Segoe UI",ui-sans-serif,sans-serif;
+  --mono:"Consolas","Courier New",ui-monospace,monospace;
+}
+html[data-font="terminal"]{
+  --font:"Lucida Console","Consolas","Cascadia Mono",ui-monospace,monospace;
+  --title-font:"Lucida Console","Consolas",ui-monospace,monospace;
+  --mono:"Lucida Console","Consolas","Cascadia Mono",ui-monospace,monospace;
+}
+html[data-font="neat"]{
+  --font:"Tahoma","Segoe UI","Arial",ui-sans-serif,system-ui,sans-serif;
+  --title-font:"Tahoma","Segoe UI",ui-sans-serif,sans-serif;
+  --mono:"Consolas","Cascadia Mono",ui-monospace,monospace;
+}
+html[data-font="persian"]{
+  --font:"B Yekan","IRANSans","Tahoma","Segoe UI",ui-sans-serif,system-ui,sans-serif;
+  --title-font:"B Yekan","IRANSans","Tahoma","Segoe UI",ui-sans-serif,sans-serif;
+  --mono:"Consolas","Cascadia Mono",ui-monospace,monospace;
+}
+html[data-font="pro"]{
+  --font:"Aptos","Segoe UI Variable","Segoe UI","Arial Nova","Arial",ui-sans-serif,system-ui,sans-serif;
+  --title-font:"Aptos Display","Aptos","Segoe UI Variable","Segoe UI",ui-sans-serif,sans-serif;
+  --mono:"Cascadia Code","Consolas","Lucida Console",ui-monospace,monospace;
+}
+html[data-font="readable"]{
+  --font:"Verdana","Tahoma","Segoe UI","Arial",ui-sans-serif,system-ui,sans-serif;
+  --title-font:"Verdana","Segoe UI Semibold","Segoe UI",ui-sans-serif,sans-serif;
+  --mono:"Consolas","Courier New","Cascadia Mono",ui-monospace,monospace;
+}
+html[data-font="rounded"]{
+  --font:"Arial Rounded MT Bold","Segoe UI","Trebuchet MS","Tahoma",ui-sans-serif,system-ui,sans-serif;
+  --title-font:"Arial Rounded MT Bold","Segoe UI Semibold","Segoe UI",ui-sans-serif,sans-serif;
+  --mono:"Cascadia Mono","Consolas","Lucida Console",ui-monospace,monospace;
+}
+html[data-font="editorial"]{
+  --font:"Cambria","Constantia","Georgia","Segoe UI",ui-serif,serif;
+  --title-font:"Cambria","Constantia","Georgia","Segoe UI",ui-serif,serif;
+  --mono:"Cascadia Mono","Consolas","Courier New",ui-monospace,monospace;
+}
 html[data-accent="ocean"]{
   --up:#55d6ff; --down:#38bdf8; --accent:#7dd3fc; --good:#4ade80; --warn:#facc15; --bad:#fb7185;
   --bg-glow-a:rgba(56,189,248,.18); --bg-glow-b:rgba(125,211,252,.12); --bg-glow-c:rgba(34,211,238,.10);
@@ -111,6 +167,61 @@ html[data-accent="rose"]{
 html[data-theme="light"][data-accent="rose"]{
   --title-grad-start:#4a044e; --title-grad-end:#be185d;
   --bg-glow-a:rgba(244,114,182,.10); --bg-glow-b:rgba(45,212,191,.08); --bg-glow-c:rgba(251,113,133,.08);
+}
+html[data-accent="cyber"]{
+  --up:#f97316; --down:#22d3ee; --accent:#a78bfa; --good:#34d399; --warn:#facc15; --bad:#f43f5e;
+  --bg-glow-a:rgba(34,211,238,.18); --bg-glow-b:rgba(167,139,250,.14); --bg-glow-c:rgba(249,115,22,.12);
+  --orb-a-solid:#22d3ee; --orb-b-solid:#a78bfa; --orb-c-solid:#f97316;
+  --title-grad-start:#ecfeff; --title-grad-end:#ddd6fe;
+  --glow-accent:0 0 22px rgba(167,139,250,.28); --glow-down:0 0 24px rgba(34,211,238,.28);
+}
+html[data-theme="light"][data-accent="cyber"]{
+  --title-grad-start:#0f172a; --title-grad-end:#4338ca;
+  --bg-glow-a:rgba(34,211,238,.12); --bg-glow-b:rgba(167,139,250,.10); --bg-glow-c:rgba(249,115,22,.08);
+}
+html[data-accent="forest"]{
+  --up:#84cc16; --down:#10b981; --accent:#14b8a6; --good:#22c55e; --warn:#eab308; --bad:#ef4444;
+  --bg-glow-a:rgba(16,185,129,.18); --bg-glow-b:rgba(20,184,166,.12); --bg-glow-c:rgba(132,204,22,.11);
+  --orb-a-solid:#10b981; --orb-b-solid:#14b8a6; --orb-c-solid:#84cc16;
+  --title-grad-start:#ecfdf5; --title-grad-end:#a7f3d0;
+  --glow-accent:0 0 22px rgba(20,184,166,.22); --glow-down:0 0 24px rgba(16,185,129,.24);
+}
+html[data-theme="light"][data-accent="forest"]{
+  --title-grad-start:#052e16; --title-grad-end:#115e59;
+  --bg-glow-a:rgba(16,185,129,.10); --bg-glow-b:rgba(20,184,166,.08); --bg-glow-c:rgba(132,204,22,.08);
+}
+html[data-accent="violet"]{
+  --up:#fb7185; --down:#8b5cf6; --accent:#c084fc; --good:#4ade80; --warn:#fbbf24; --bad:#f43f5e;
+  --bg-glow-a:rgba(139,92,246,.18); --bg-glow-b:rgba(192,132,252,.12); --bg-glow-c:rgba(251,113,133,.11);
+  --orb-a-solid:#8b5cf6; --orb-b-solid:#c084fc; --orb-c-solid:#fb7185;
+  --title-grad-start:#faf5ff; --title-grad-end:#e9d5ff;
+  --glow-accent:0 0 22px rgba(192,132,252,.28); --glow-down:0 0 24px rgba(139,92,246,.24);
+}
+html[data-theme="light"][data-accent="violet"]{
+  --title-grad-start:#3b0764; --title-grad-end:#6d28d9;
+  --bg-glow-a:rgba(139,92,246,.10); --bg-glow-b:rgba(192,132,252,.08); --bg-glow-c:rgba(251,113,133,.07);
+}
+html[data-accent="mono"]{
+  --up:#a3a3a3; --down:#d4d4d4; --accent:#f5f5f5; --good:#86efac; --warn:#fde047; --bad:#fca5a5;
+  --bg-glow-a:rgba(212,212,212,.15); --bg-glow-b:rgba(163,163,163,.10); --bg-glow-c:rgba(245,245,245,.08);
+  --orb-a-solid:#d4d4d4; --orb-b-solid:#a3a3a3; --orb-c-solid:#f5f5f5;
+  --title-grad-start:#fafafa; --title-grad-end:#d4d4d4;
+  --glow-accent:0 0 20px rgba(245,245,245,.18); --glow-down:0 0 20px rgba(212,212,212,.18);
+}
+html[data-theme="light"][data-accent="mono"]{
+  --title-grad-start:#111827; --title-grad-end:#4b5563;
+  --bg-glow-a:rgba(212,212,212,.08); --bg-glow-b:rgba(163,163,163,.07); --bg-glow-c:rgba(245,245,245,.06);
+}
+html[data-accent="lava"]{
+  --up:#f97316; --down:#ef4444; --accent:#fb7185; --good:#34d399; --warn:#f59e0b; --bad:#dc2626;
+  --bg-glow-a:rgba(239,68,68,.18); --bg-glow-b:rgba(249,115,22,.14); --bg-glow-c:rgba(251,113,133,.10);
+  --orb-a-solid:#ef4444; --orb-b-solid:#f97316; --orb-c-solid:#fb7185;
+  --title-grad-start:#fff7ed; --title-grad-end:#fecaca;
+  --glow-accent:0 0 22px rgba(251,113,133,.24); --glow-down:0 0 24px rgba(239,68,68,.24);
+}
+html[data-theme="light"][data-accent="lava"]{
+  --title-grad-start:#431407; --title-grad-end:#b91c1c;
+  --bg-glow-a:rgba(239,68,68,.10); --bg-glow-b:rgba(249,115,22,.08); --bg-glow-c:rgba(251,113,133,.08);
 }
 /* ---- light-theme overrides for hard-coded dark surfaces ----------- */
 html[data-theme="light"] .title h1{background:linear-gradient(135deg,var(--title-grad-start),var(--title-grad-end));
@@ -203,23 +314,49 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   -webkit-mask-composite:xor;mask-composite:exclude;opacity:.4;animation:spin 8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .title h1{margin:0;font-size:18px;letter-spacing:.3px;background:linear-gradient(135deg,var(--title-grad-start),var(--title-grad-end));
-  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--title-font)}
 .header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
-.theme-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.theme-swatches{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 8px;border-radius:999px;
-  border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--panel);
-  box-shadow:var(--sh-sm),var(--sh-inset);backdrop-filter:blur(8px)}
-.theme-swatch{position:relative;width:18px;height:18px;border-radius:999px;border:1px solid rgba(255,255,255,.16);cursor:pointer;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 2px 8px rgba(0,0,0,.28);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
-.theme-swatch:hover{transform:translateY(-1px) scale(1.06)}
-.theme-swatch.active{border-color:var(--text);box-shadow:0 0 0 2px rgba(255,255,255,.06),0 0 0 4px rgba(90,200,250,.18),0 4px 14px rgba(0,0,0,.28)}
-.theme-swatch::after{content:"";position:absolute;inset:3px;border-radius:999px;background:rgba(255,255,255,.18);opacity:0;transition:opacity .18s ease}
-.theme-swatch.active::after{opacity:1}
-.theme-swatch.aurora{background:linear-gradient(135deg,#5ac8fa,#d2a0ff,#ff9650)}
-.theme-swatch.ocean{background:linear-gradient(135deg,#38bdf8,#7dd3fc,#22d3ee)}
-.theme-swatch.emerald{background:linear-gradient(135deg,#34d399,#10b981,#fbbf24)}
-.theme-swatch.sunset{background:linear-gradient(135deg,#fb923c,#f472b6,#a78bfa)}
-.theme-swatch.rose{background:linear-gradient(135deg,#f472b6,#2dd4bf,#fb7185)}
+.theme-tools{position:relative;display:flex;align-items:center;justify-content:flex-end}
+.theme-launcher{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;
+  border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.04),transparent),var(--panel);
+  color:var(--text);font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  box-shadow:var(--sh-sm),var(--sh-inset);transition:border-color .2s ease,box-shadow .2s ease,transform .15s ease}
+.theme-launcher:hover{transform:translateY(-1px);border-color:var(--down);box-shadow:var(--sh-md),var(--sh-inset),0 0 14px rgba(90,200,250,.12)}
+.theme-launcher .chip{width:18px;height:18px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(135deg,var(--down),var(--accent),var(--up));box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.theme-launcher .mode{color:var(--muted)}
+.theme-panel{position:absolute;top:calc(100% + 10px);right:0;z-index:20;min-width:310px;max-width:360px;
+  border:1px solid var(--border);border-radius:14px;padding:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),transparent),var(--panel2);
+  box-shadow:var(--sh-lg),var(--sh-inset);backdrop-filter:blur(10px);
+  opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease}
+.theme-panel.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.theme-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.theme-head b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.theme-random{padding:5px 9px !important;font-size:11px !important}
+.theme-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.theme-mode-btn{border:1px solid var(--border);border-radius:9px;padding:7px 6px;background:rgba(255,255,255,.02);color:var(--muted);
+  font-size:11px;cursor:pointer;transition:all .18s ease;text-transform:uppercase;letter-spacing:.06em}
+.theme-mode-btn:hover{color:var(--text);border-color:var(--down)}
+.theme-mode-btn.active{color:#fff;border-color:rgba(90,200,250,.45);background:linear-gradient(180deg,rgba(90,200,250,.2),rgba(90,200,250,.07));box-shadow:0 0 12px rgba(90,200,250,.16)}
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.theme-option{display:flex;align-items:center;gap:8px;width:100%;border:1px solid var(--border);border-radius:11px;
+  padding:8px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent);color:var(--text);
+  cursor:pointer;transition:all .18s ease;text-align:left}
+.theme-option:hover{border-color:var(--accent);transform:translateY(-1px)}
+.theme-option.active{border-color:rgba(210,160,255,.5);box-shadow:0 0 0 1px rgba(210,160,255,.22),0 0 14px rgba(210,160,255,.16)}
+.theme-dot{width:22px;height:22px;border-radius:999px;border:1px solid rgba(255,255,255,.18);flex:0 0 22px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 2px 8px rgba(0,0,0,.28)}
+.theme-dot.aurora{background:linear-gradient(135deg,#5ac8fa,#d2a0ff,#ff9650)}
+.theme-dot.ocean{background:linear-gradient(135deg,#38bdf8,#7dd3fc,#22d3ee)}
+.theme-dot.emerald{background:linear-gradient(135deg,#34d399,#10b981,#fbbf24)}
+.theme-dot.sunset{background:linear-gradient(135deg,#fb923c,#f472b6,#a78bfa)}
+.theme-dot.rose{background:linear-gradient(135deg,#f472b6,#2dd4bf,#fb7185)}
+.theme-option .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.theme-option .meta b{font-size:12px;line-height:1.1}
+.theme-option .meta span{font-size:10px;color:var(--muted);line-height:1.1}
+.theme-subtitle{margin:8px 0 6px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
 .theme-mode-label{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 .title .sub{color:var(--muted);font-size:12px;margin-top:2px}
 .pill{display:inline-flex;align-items:center;gap:8px;font-size:12px;padding:7px 12px;
@@ -471,23 +608,54 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     <div class="title">
       <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" fill-opacity=".2"></polygon></svg></div>
       <div>
-        <h1>SOCKS5 relay · live traffic</h1>
+        <h1 id="appTitle">SOCKS5 relay · live traffic</h1>
         <div class="sub" id="sub">connecting…</div>
       </div>
     </div>
     <div class="header-actions">
       <div class="pill" id="status"><span class="dot"></span><span id="statusText">live</span></div>
       <div class="theme-tools">
-        <button class="btn ghost" id="themeBtn" type="button" title="Toggle light / dark theme" style="padding:7px 10px;border-radius:999px">
-          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          <span class="theme-mode-label" id="themeModeLabel">Dark</span>
+        <button class="theme-launcher" id="themeLauncher" type="button" title="Open Theme Studio" aria-expanded="false">
+          <span class="chip"></span>
+          <span id="themeStudioLabel">Theme Studio</span>
+          <span class="mode" id="themeModeLabel">dark · aurora</span>
         </button>
-        <div class="theme-swatches" id="themeSwatches" aria-label="Theme palette selector">
-          <button class="theme-swatch aurora" type="button" data-palette="aurora" title="Aurora"></button>
-          <button class="theme-swatch ocean" type="button" data-palette="ocean" title="Ocean"></button>
-          <button class="theme-swatch emerald" type="button" data-palette="emerald" title="Emerald"></button>
-          <button class="theme-swatch sunset" type="button" data-palette="sunset" title="Sunset"></button>
-          <button class="theme-swatch rose" type="button" data-palette="rose" title="Rose"></button>
+        <div class="theme-panel" id="themePanel" aria-label="Theme selector">
+          <div class="theme-head">
+            <b id="themeSelectorTitle">Theme selector</b>
+            <button class="btn ghost theme-random" id="themeRandom" type="button">Random</button>
+          </div>
+          <div class="theme-modes" id="themeModes">
+            <button class="theme-mode-btn" type="button" data-mode="auto">Auto</button>
+            <button class="theme-mode-btn" type="button" data-mode="dark">Dark</button>
+            <button class="theme-mode-btn" type="button" data-mode="light">Light</button>
+          </div>
+          <div class="theme-subtitle" id="themeSubtitlePalette">Palette</div>
+          <div class="theme-grid" id="themeGrid">
+            <button class="theme-option" type="button" data-palette="aurora"><span class="theme-dot aurora"></span><span class="meta"><b>Aurora</b><span>neon night</span></span></button>
+            <button class="theme-option" type="button" data-palette="ocean"><span class="theme-dot ocean"></span><span class="meta"><b>Ocean</b><span>cool blue</span></span></button>
+            <button class="theme-option" type="button" data-palette="emerald"><span class="theme-dot emerald"></span><span class="meta"><b>Emerald</b><span>clean green</span></span></button>
+            <button class="theme-option" type="button" data-palette="sunset"><span class="theme-dot sunset"></span><span class="meta"><b>Sunset</b><span>warm glow</span></span></button>
+            <button class="theme-option" type="button" data-palette="rose"><span class="theme-dot rose"></span><span class="meta"><b>Rose</b><span>pink mint</span></span></button>
+            <button class="theme-option" type="button" data-palette="cyber"><span class="theme-dot cyber" style="background:linear-gradient(135deg,#22d3ee,#a78bfa,#f97316)"></span><span class="meta"><b>Cyber</b><span>arcade glow</span></span></button>
+            <button class="theme-option" type="button" data-palette="forest"><span class="theme-dot forest" style="background:linear-gradient(135deg,#10b981,#14b8a6,#84cc16)"></span><span class="meta"><b>Forest</b><span>nature vibe</span></span></button>
+            <button class="theme-option" type="button" data-palette="violet"><span class="theme-dot violet" style="background:linear-gradient(135deg,#8b5cf6,#c084fc,#fb7185)"></span><span class="meta"><b>Violet</b><span>dreamy purple</span></span></button>
+            <button class="theme-option" type="button" data-palette="mono"><span class="theme-dot mono" style="background:linear-gradient(135deg,#d4d4d4,#a3a3a3,#f5f5f5)"></span><span class="meta"><b>Mono</b><span>minimal steel</span></span></button>
+            <button class="theme-option" type="button" data-palette="lava"><span class="theme-dot lava" style="background:linear-gradient(135deg,#ef4444,#f97316,#fb7185)"></span><span class="meta"><b>Lava</b><span>hot energy</span></span></button>
+          </div>
+          <div class="theme-subtitle" id="themeSubtitleFont">Font pack (local only)</div>
+          <div class="theme-modes" id="themeFonts" style="grid-template-columns:repeat(4,1fr)">
+            <button class="theme-mode-btn" type="button" data-font="default">Default</button>
+            <button class="theme-mode-btn" type="button" data-font="pro">Pro UI</button>
+            <button class="theme-mode-btn" type="button" data-font="readable">Readable</button>
+            <button class="theme-mode-btn" type="button" data-font="modern">Modern</button>
+            <button class="theme-mode-btn" type="button" data-font="classic">Classic</button>
+            <button class="theme-mode-btn" type="button" data-font="rounded">Rounded</button>
+            <button class="theme-mode-btn" type="button" data-font="editorial">Editorial</button>
+            <button class="theme-mode-btn" type="button" data-font="terminal">Terminal</button>
+            <button class="theme-mode-btn" type="button" data-font="neat">Neat</button>
+            <button class="theme-mode-btn" type="button" data-font="persian">Persian</button>
+          </div>
         </div>
       </div>
     </div>
@@ -498,19 +666,19 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   </div>
 
   <nav class="tabs" role="tablist">
-    <button class="tab active" data-tab="overview"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>Overview</button>
-    <button class="tab" data-tab="access"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Access &amp; whitelist</button>
-    <button class="tab" data-tab="network"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>Network &amp; limit</button>
-    <button class="tab" data-tab="security"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>Security</button>
-    <button class="tab" data-tab="hosts"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></span>Destinations</button>
-    <button class="tab" data-tab="clients"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>Clients</button>
-    <button class="tab" data-tab="configs"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></span>Configs</button>
+    <button class="tab active" id="tabOverview" data-tab="overview"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>Overview</button>
+    <button class="tab" id="tabAccess" data-tab="access"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Access &amp; whitelist</button>
+    <button class="tab" id="tabNetwork" data-tab="network"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>Network &amp; limit</button>
+    <button class="tab" id="tabSecurity" data-tab="security"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>Security</button>
+    <button class="tab" id="tabHosts" data-tab="hosts"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></span>Destinations</button>
+    <button class="tab" id="tabClients" data-tab="clients"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>Clients</button>
+    <button class="tab" id="tabConfigs" data-tab="configs"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></span>Configs</button>
   </nav>
 
   <section class="tab-pane active" id="pane-overview">
     <div class="grid">
       <div class="card span-12">
-        <h2>Server resources <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· live host snapshot</span></h2>
+        <h2><span id="hServerResources">Server resources</span> <span class="muted" id="hServerResourcesSub" style="text-transform:none;letter-spacing:0;font-weight:400">· live host snapshot</span></h2>
         <div class="sys-grid">
           <div class="sys-card cpu">
             <div class="sys-ring" id="cpuGauge"><span class="value" id="cpuGaugeValue">0%</span></div>
@@ -534,7 +702,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       <div class="card span-12">
         <div class="ux-intro">
           <div class="copy">
-            <p class="title">Quick start</p>
+            <p class="title" id="quickStartTitle">Quick start</p>
             <p class="desc" id="quickGuideText">No traffic yet — start a client connection, then open Destinations or Clients to inspect usage.</p>
           </div>
           <div class="ux-actions">
@@ -544,50 +712,50 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
           </div>
         </div>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <span class="mini-chip">active tunnels <b id="quickActive">0</b></span>
-          <span class="mini-chip">client count <b id="quickClients">0</b></span>
-          <span class="mini-chip">last update <b id="quickUpdated">--:--:--</b></span>
+          <span class="mini-chip"><span id="miniActiveLabel">active tunnels</span> <b id="quickActive">0</b></span>
+          <span class="mini-chip"><span id="miniClientLabel">client count</span> <b id="quickClients">0</b></span>
+          <span class="mini-chip"><span id="miniUpdatedLabel">last update</span> <b id="quickUpdated">--:--:--</b></span>
         </div>
       </div>
 
-      <div class="card span-3"><h2>Upload</h2>
+      <div class="card span-3"><h2 id="hUpload">Upload</h2>
         <div class="stat"><span class="v up" id="upSpeed">0 B/s</span>
-          <span class="s">peak <span id="upPeak">0 B/s</span></span></div></div>
-      <div class="card span-3"><h2>Download</h2>
+          <span class="s"><span id="labelPeakUp">peak</span> <span id="upPeak">0 B/s</span></span></div></div>
+      <div class="card span-3"><h2 id="hDownload">Download</h2>
         <div class="stat"><span class="v down" id="downSpeed">0 B/s</span>
-          <span class="s">peak <span id="downPeak">0 B/s</span></span></div></div>
-      <div class="card span-3"><h2>Active tunnels</h2>
+          <span class="s"><span id="labelPeakDown">peak</span> <span id="downPeak">0 B/s</span></span></div></div>
+      <div class="card span-3"><h2 id="hActiveTunnels">Active tunnels</h2>
         <div class="stat"><span class="v acc" id="active">0</span>
-          <span class="s">peak <span id="peakActive">0</span> · <span id="total">0</span> total · <span id="rate">0.0</span>/s</span></div></div>
-      <div class="card span-3"><h2>Uptime</h2>
+          <span class="s"><span id="labelPeakActive">peak</span> <span id="peakActive">0</span> · <span id="total">0</span> <span id="labelTotalConns">total</span> · <span id="rate">0.0</span>/s</span></div></div>
+      <div class="card span-3"><h2 id="hUptime">Uptime</h2>
         <div class="stat"><span class="v" id="uptime">0s</span>
-          <span class="s">since start</span></div></div>
+          <span class="s" id="labelSinceStart">since start</span></div></div>
 
       <div class="card span-4">
-        <h2>Totals</h2>
-        <div class="row"><span class="muted">Live connections</span>
+        <h2 id="hTotals">Totals</h2>
+        <div class="row"><span class="muted" id="labelLiveConnections">Live connections</span>
           <span class="v acc" style="font-size:18px" id="tcpConnections">0</span></div>
-        <div class="row"><span class="muted">Total</span>
+        <div class="row"><span class="muted" id="labelTotalTraffic">Total</span>
           <span class="v" style="font-size:18px" id="totalBytes">0 B</span></div>
         <div class="row" style="margin-top:8px"><span class="up">↑</span>
           <span class="mono" id="upBytes">0 B</span>
-          <span class="muted">avg</span><span class="mono" id="upAvg">0 B/s</span></div>
+          <span class="muted" id="labelAvgUp">avg</span><span class="mono" id="upAvg">0 B/s</span></div>
         <div class="row" style="margin-top:4px"><span class="down">↓</span>
           <span class="mono" id="downBytes">0 B</span>
-          <span class="muted">avg</span><span class="mono" id="downAvg">0 B/s</span></div>
-        <h2 style="margin-top:16px">Events</h2>
+          <span class="muted" id="labelAvgDown">avg</span><span class="mono" id="downAvg">0 B/s</span></div>
+        <h2 id="hEvents" style="margin-top:16px">Events</h2>
         <div class="events">
-          <div class="ev err"><b id="errors">0</b> errors</div>
-          <div class="ev auth"><b id="authFail">0</b> auth fail</div>
-          <div class="ev ref"><b id="refused">0</b> refused</div>
-          <div class="ev"><b id="resets">0</b> resets</div>
+          <div class="ev err"><b id="errors">0</b> <span id="labelErrors">errors</span></div>
+          <div class="ev auth"><b id="authFail">0</b> <span id="labelAuthFail">auth fail</span></div>
+          <div class="ev ref"><b id="refused">0</b> <span id="labelRefused">refused</span></div>
+          <div class="ev"><b id="resets">0</b> <span id="labelResets">resets</span></div>
         </div>
       </div>
 
       <div class="card span-8">
-        <h2>Throughput
-          <span class="legend"><span class="sw up"></span> up</span>
-          <span class="legend"><span class="sw down"></span> down</span>
+        <h2><span id="hThroughput">Throughput</span>
+          <span class="legend"><span class="sw up"></span> <span id="legendUp">up</span></span>
+          <span class="legend"><span class="sw down"></span> <span id="legendDown">down</span></span>
         </h2>
         <canvas id="chart" height="220"></canvas>
       </div>
@@ -597,7 +765,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   <section class="tab-pane" id="pane-access">
     <div class="grid">
       <div class="card span-6">
-        <h2>Proxy &amp; whitelist
+        <h2><span id="hProxyWhitelist">Proxy &amp; whitelist</span>
           <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">
             · <span class="bypass-badge" id="bypassBadge">bypassed 0</span>
           </span>
@@ -623,7 +791,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       </div>
 
       <div class="card span-6">
-        <h2>Whitelist presets</h2>
+        <h2 id="hWhitelistPresets">Whitelist presets</h2>
         <div class="presets" id="presets">
           <div class="preset" data-name="telegram"><div class="name"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg></span>Telegram</div>
             <span class="cnt" id="cnt-telegram">0</span></div>
@@ -645,7 +813,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   <section class="tab-pane" id="pane-network">
     <div class="grid">
       <div class="card span-6">
-        <h2>Listener</h2>
+        <h2 id="hListener">Listener</h2>
         <div class="muted" style="font-size:12px;margin-bottom:8px">
           Currently listening on <span class="mono" id="listenAddr">…</span>
         </div>
@@ -654,7 +822,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
           <input type="number" id="portInput" min="1" max="65535" step="1"/>
           <button class="btn primary" id="portBtn">Apply</button>
         </div>
-        <div class="muted" style="font-size:11px;margin-top:4px">Rebinds the listener without restart.</div>
+        <div class="muted" id="listenerHint" style="font-size:11px;margin-top:4px">Rebinds the listener without restart.</div>
         <div class="section-label" style="margin-top:14px">Upstream health</div>
         <div class="inline-form">
           <button class="btn" id="upstreamCheckBtn">Check upstream</button>
@@ -663,7 +831,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       </div>
 
       <div class="card span-6">
-        <h2>Traffic limit</h2>
+        <h2 id="hTrafficLimit">Traffic limit</h2>
         <div class="inline-form">
           <input type="number" id="limitInput" min="0" step="1" placeholder="MB (0=off)"/>
           <button class="btn primary" id="limitBtn">Set</button>
@@ -672,7 +840,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
         <div class="muted" style="font-size:11px;margin-top:6px" id="limitStatus">no limit set</div>
         <div class="limit-progress"><i id="limitBar"></i></div>
 
-        <div class="section-label" style="margin-top:14px">Bandwidth cap</div>
+        <div class="section-label" id="hBandwidthCap" style="margin-top:14px">Bandwidth cap</div>
         <div class="inline-form">
           <input type="number" id="bwInput" min="0" step="1" placeholder="KB/s (0=off)"/>
           <button class="btn primary" id="bwBtn">Set</button>
@@ -684,13 +852,13 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
         <div class="inline-form">
           <button class="btn" id="resetBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Reset traffic</button>
         </div>
-        <div class="muted" style="font-size:11px;margin-top:4px">
+        <div class="muted" id="resetHint" style="font-size:11px;margin-top:4px">
           Clears totals, peaks, per-host stats.
         </div>
       </div>
 
       <div class="card span-6">
-        <h2>Connection caps</h2>
+        <h2 id="hConnectionCaps">Connection caps</h2>
         <div class="muted" style="font-size:11px;margin-bottom:8px">
           Limit concurrent tunnels. New connects beyond the cap are refused without auth.
         </div>
@@ -708,7 +876,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       </div>
 
       <div class="card span-6">
-        <h2>GeoIP lookup</h2>
+        <h2 id="hGeoipLookup">GeoIP lookup</h2>
         <div class="muted" style="font-size:11px;margin-bottom:8px">
           Shows country flag next to each destination in the Destinations tab.
           <b>Leaks visited hostnames to ip-api.com.</b> Off by default.
@@ -724,7 +892,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   <section class="tab-pane" id="pane-security">
     <div class="grid">
       <div class="card span-8">
-        <h2>SOCKS5 credentials</h2>
+        <h2 id="hSocksCreds">SOCKS5 credentials</h2>
         <div class="ctrl-row" style="margin-bottom:12px;padding:10px 12px;
                     background:rgba(240,200,100,.06);border:1px solid rgba(240,200,100,.3);border-radius:10px">
           <div class="lbl">
@@ -764,7 +932,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       </div>
 
       <div class="card span-4">
-        <h2>Kill switch</h2>
+        <h2 id="hKillSwitch">Kill switch</h2>
         <div class="muted" style="font-size:12px;margin-bottom:10px">
           Terminates the relay process immediately.
           Every active tunnel drops and the web dashboard goes offline.
@@ -776,7 +944,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 
   <section class="tab-pane" id="pane-hosts">
     <div class="card span-12">
-      <h2>Top destinations <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">
+      <h2><span id="hTopDestinations">Top destinations</span> <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">
         · <span id="hostCount">0</span> unique</span></h2>
       <table>
         <thead><tr><th style="width:24px"></th><th>#</th><th>Host</th><th>Share</th>
@@ -789,7 +957,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 
   <section class="tab-pane" id="pane-clients">
     <div class="card span-12">
-      <h2>Connected clients <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">
+      <h2><span id="hConnectedClients">Connected clients</span> <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">
         · <span id="clientCount">0</span> total</span></h2>
       <table>
         <thead><tr><th style="width:24px"></th><th>#</th><th>IP Address</th>
@@ -803,7 +971,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   <section class="tab-pane" id="pane-configs">
     <div class="grid">
       <div class="card span-12">
-        <h2>Config generator <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· V2Ray JSON · Telegram · URI</span></h2>
+        <h2><span id="hConfigGenerator">Config generator</span> <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· V2Ray JSON · Telegram · URI</span></h2>
         <div class="muted" style="font-size:12px;margin-bottom:14px">
           Enter the public IP / hostname that external clients will use to reach this relay,
           plus its port. Username &amp; password are pulled from the running relay automatically —
@@ -912,6 +1080,307 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   };
   const fmtPct = n => `${Math.max(0, Math.min(100, Number(n) || 0)).toFixed( Number(n) >= 10 || Number(n) === 0 ? 0 : 2)}%`;
 
+  const I18N = {
+    en: {
+      appTitle: "SOCKS5 relay · live traffic",
+      themeStudio: "Theme Studio",
+      themeSelector: "Theme selector",
+      random: "Random",
+      palette: "Palette",
+      fontPack: "Font pack (local only)",
+      language: "Language",
+      tabOverview: "Overview",
+      tabAccess: "Access & whitelist",
+      tabNetwork: "Network & limit",
+      tabSecurity: "Security",
+      tabHosts: "Destinations",
+      tabClients: "Clients",
+      tabConfigs: "Configs",
+      openClients: "Open clients",
+      openHosts: "Open destinations",
+      openNetwork: "Open network tools",
+      statusLive: "live",
+      statusAuth: "auth",
+      statusDenied: "denied",
+      statusOffline: "offline",
+      subAuth: "authentication required — redirecting to login...",
+      subDenied: "panel access denied by IP ACL (allowed_panel_ips).",
+      subOffline: "cannot fetch /api/stats — check server status, ACL, or auth.",
+      quickNone: "No traffic yet — start a client connection, then open Destinations or Clients to inspect usage.",
+      quickActive: "Relay is active now — open Clients for per-IP usage and Destinations for top domains.",
+      quickPast: "Traffic was detected — explore Destinations and Clients tabs for detailed history.",
+      rowNoTraffic: "no traffic yet",
+      rowNoClients: "no clients yet",
+      connecting: "connecting…",
+      hServerResources: "Server resources",
+      hServerResourcesSub: "· live host snapshot",
+      quickStartTitle: "Quick start",
+      miniActiveLabel: "active tunnels",
+      miniClientLabel: "client count",
+      miniUpdatedLabel: "last update",
+      hUpload: "Upload",
+      hDownload: "Download",
+      hActiveTunnels: "Active tunnels",
+      hUptime: "Uptime",
+      hTotals: "Totals",
+      hEvents: "Events",
+      hThroughput: "Throughput",
+      legendUp: "up",
+      legendDown: "down",
+      hProxyWhitelist: "Proxy & whitelist",
+      hWhitelistPresets: "Whitelist presets",
+      hListener: "Listener",
+      listenerHint: "Rebinds the listener without restart.",
+      hTrafficLimit: "Traffic limit",
+      hBandwidthCap: "Bandwidth cap",
+      hConnectionCaps: "Connection caps",
+      hGeoipLookup: "GeoIP lookup",
+      hSocksCreds: "SOCKS5 credentials",
+      hKillSwitch: "Kill switch",
+      hTopDestinations: "Top destinations",
+      hConnectedClients: "Connected clients",
+      hConfigGenerator: "Config generator",
+      btnResetTraffic: "Reset traffic",
+      btnCheckUpstream: "Check upstream",
+      btnKillNow: "Kill now",
+      btnGenerate: "Generate",
+      btnUseMyIp: "Use my local IP",
+      noLimitSet: "no limit set",
+      noBandwidthCap: "no bandwidth cap · all tunnels share this limit",
+      noCapsSet: "no caps set",
+      connGlobal: "global",
+      connPerClient: "per-client",
+      connRefused: "refused",
+      upstreamClickHint: "Click to test upstream and detect public IP.",
+      upstreamChecking: "Checking upstream via IP API…",
+      upstreamDownRequest: "DOWN · request failed"
+    },
+    fa: {
+      appTitle: "SOCKS5 relay · ترافیک زنده",
+      themeStudio: "استودیو تم",
+      themeSelector: "انتخاب‌گر تم",
+      random: "تصادفی",
+      palette: "پالت رنگ",
+      fontPack: "بسته فونت (لوکال)",
+      language: "زبان",
+      tabOverview: "نمای کلی",
+      tabAccess: "دسترسی و وایت‌لیست",
+      tabNetwork: "شبکه و محدودیت",
+      tabSecurity: "امنیت",
+      tabHosts: "مقصدها",
+      tabClients: "کلاینت‌ها",
+      tabConfigs: "کانفیگ‌ها",
+      openClients: "رفتن به کلاینت‌ها",
+      openHosts: "رفتن به مقصدها",
+      openNetwork: "ابزار شبکه",
+      statusLive: "آنلاین",
+      statusAuth: "احراز هویت",
+      statusDenied: "عدم دسترسی",
+      statusOffline: "آفلاین",
+      subAuth: "احراز هویت لازم است — انتقال به صفحه ورود...",
+      subDenied: "دسترسی پنل توسط ACL آی‌پی مسدود شد.",
+      subOffline: "دریافت /api/stats انجام نشد — وضعیت سرور، ACL یا احراز هویت را بررسی کن.",
+      quickNone: "هنوز ترافیکی ثبت نشده — یک اتصال کلاینت بزن و سپس مقصدها یا کلاینت‌ها را ببین.",
+      quickActive: "الان رله فعاله — برای مصرف هر آی‌پی وارد بخش کلاینت‌ها و برای دامنه‌ها وارد مقصدها شو.",
+      quickPast: "قبلاً ترافیک ثبت شده — برای جزئیات تاریخچه، مقصدها و کلاینت‌ها را بررسی کن.",
+      rowNoTraffic: "هنوز ترافیکی نیست",
+      rowNoClients: "هنوز کلاینتی نیست",
+      connecting: "در حال اتصال…",
+      hServerResources: "منابع سرور",
+      hServerResourcesSub: "· وضعیت زنده میزبان",
+      quickStartTitle: "شروع سریع",
+      miniActiveLabel: "تانل فعال",
+      miniClientLabel: "تعداد کلاینت",
+      miniUpdatedLabel: "آخرین بروزرسانی",
+      hUpload: "آپلود",
+      hDownload: "دانلود",
+      hActiveTunnels: "تانل‌های فعال",
+      hUptime: "زمان اجرا",
+      hTotals: "مجموع",
+      hEvents: "رویدادها",
+      hThroughput: "نرخ انتقال",
+      legendUp: "ارسال",
+      legendDown: "دریافت",
+      hProxyWhitelist: "پروکسی و وایت‌لیست",
+      hWhitelistPresets: "پریست‌های وایت‌لیست",
+      hListener: "شنونده",
+      listenerHint: "بدون ری‌استارت، پورت شنونده را مجدداً bind می‌کند.",
+      hTrafficLimit: "محدودیت ترافیک",
+      hBandwidthCap: "سقف پهنای‌باند",
+      hConnectionCaps: "سقف اتصال",
+      hGeoipLookup: "جستجوی GeoIP",
+      hSocksCreds: "اعتبارنامه SOCKS5",
+      hKillSwitch: "کلید قطع اضطراری",
+      hTopDestinations: "مقصدهای برتر",
+      hConnectedClients: "کلاینت‌های متصل",
+      hConfigGenerator: "سازنده کانفیگ",
+      btnResetTraffic: "ریست ترافیک",
+      btnCheckUpstream: "بررسی upstream",
+      btnKillNow: "قطع فوری",
+      btnGenerate: "تولید",
+      btnUseMyIp: "استفاده از IP من",
+      noLimitSet: "محدودیتی تنظیم نشده",
+      noBandwidthCap: "سقف پهنای‌باند غیرفعال است · همه تانل‌ها این ظرفیت را مشترک دارند",
+      noCapsSet: "سقف اتصال تنظیم نشده",
+      connGlobal: "سراسری",
+      connPerClient: "هر کلاینت",
+      connRefused: "رد شده",
+      upstreamClickHint: "برای تست upstream و تشخیص IP عمومی کلیک کن.",
+      upstreamChecking: "در حال بررسی upstream از طریق IP API…",
+      upstreamDownRequest: "DOWN · خطا در درخواست"
+    },
+    zh: {
+      appTitle: "SOCKS5 中继 · 实时流量",
+      themeStudio: "主题工作室",
+      themeSelector: "主题选择器",
+      random: "随机",
+      palette: "配色",
+      fontPack: "字体包（仅本地）",
+      language: "语言",
+      tabOverview: "概览",
+      tabAccess: "访问与白名单",
+      tabNetwork: "网络与限制",
+      tabSecurity: "安全",
+      tabHosts: "目标",
+      tabClients: "客户端",
+      tabConfigs: "配置",
+      openClients: "打开客户端",
+      openHosts: "打开目标",
+      openNetwork: "打开网络工具",
+      statusLive: "在线",
+      statusAuth: "认证",
+      statusDenied: "拒绝",
+      statusOffline: "离线",
+      subAuth: "需要身份验证 — 正在跳转到登录页...",
+      subDenied: "面板访问被 IP ACL 拒绝。",
+      subOffline: "无法获取 /api/stats — 请检查服务、ACL 或认证。",
+      quickNone: "暂无流量 — 先建立客户端连接，再查看目标或客户端页。",
+      quickActive: "中继当前活跃 — 打开客户端查看每 IP 用量，打开目标查看热门域名。",
+      quickPast: "检测到历史流量 — 请在目标和客户端页查看详细记录。",
+      rowNoTraffic: "暂无流量",
+      rowNoClients: "暂无客户端",
+      connecting: "连接中…",
+      hServerResources: "服务器资源",
+      hServerResourcesSub: "· 主机实时快照",
+      quickStartTitle: "快速开始",
+      miniActiveLabel: "活动隧道",
+      miniClientLabel: "客户端数量",
+      miniUpdatedLabel: "最后更新",
+      hUpload: "上传",
+      hDownload: "下载",
+      hActiveTunnels: "活动隧道",
+      hUptime: "运行时长",
+      hTotals: "总计",
+      hEvents: "事件",
+      hThroughput: "吞吐量",
+      legendUp: "上行",
+      legendDown: "下行",
+      hProxyWhitelist: "代理与白名单",
+      hWhitelistPresets: "白名单预设",
+      hListener: "监听器",
+      listenerHint: "无需重启即可重新绑定监听端口。",
+      hTrafficLimit: "流量限制",
+      hBandwidthCap: "带宽上限",
+      hConnectionCaps: "连接上限",
+      hGeoipLookup: "GeoIP 查询",
+      hSocksCreds: "SOCKS5 凭据",
+      hKillSwitch: "紧急终止",
+      hTopDestinations: "热门目标",
+      hConnectedClients: "已连接客户端",
+      hConfigGenerator: "配置生成器",
+      btnResetTraffic: "重置流量",
+      btnCheckUpstream: "检查上游",
+      btnKillNow: "立即终止",
+      btnGenerate: "生成",
+      btnUseMyIp: "使用我的本机 IP",
+      noLimitSet: "未设置限制",
+      noBandwidthCap: "未限制带宽 · 所有隧道共享该限制",
+      noCapsSet: "未设置连接上限",
+      connGlobal: "全局",
+      connPerClient: "每客户端",
+      connRefused: "已拒绝",
+      upstreamClickHint: "点击测试上游并检测公网 IP。",
+      upstreamChecking: "正在通过 IP API 检查上游…",
+      upstreamDownRequest: "DOWN · 请求失败"
+    },
+    ru: {
+      appTitle: "SOCKS5 relay · живой трафик",
+      themeStudio: "Студия тем",
+      themeSelector: "Выбор темы",
+      random: "Случайно",
+      palette: "Палитра",
+      fontPack: "Набор шрифтов (локально)",
+      language: "Язык",
+      tabOverview: "Обзор",
+      tabAccess: "Доступ и whitelist",
+      tabNetwork: "Сеть и лимиты",
+      tabSecurity: "Безопасность",
+      tabHosts: "Назначения",
+      tabClients: "Клиенты",
+      tabConfigs: "Конфиги",
+      openClients: "Открыть клиентов",
+      openHosts: "Открыть назначения",
+      openNetwork: "Сетевые инструменты",
+      statusLive: "онлайн",
+      statusAuth: "авторизация",
+      statusDenied: "доступ запрещён",
+      statusOffline: "оффлайн",
+      subAuth: "требуется авторизация — переход на страницу входа...",
+      subDenied: "доступ к панели запрещён IP ACL.",
+      subOffline: "не удаётся получить /api/stats — проверьте сервер, ACL или авторизацию.",
+      quickNone: "Трафика пока нет — подключите клиент и откройте разделы назначений/клиентов.",
+      quickActive: "Релей активен — откройте Клиенты и Назначения для подробностей.",
+      quickPast: "Обнаружен прошлый трафик — изучите историю в разделах назначений и клиентов.",
+      rowNoTraffic: "трафика пока нет",
+      rowNoClients: "клиентов пока нет",
+      connecting: "подключение…",
+      hServerResources: "Ресурсы сервера",
+      hServerResourcesSub: "· живой снимок хоста",
+      quickStartTitle: "Быстрый старт",
+      miniActiveLabel: "активные туннели",
+      miniClientLabel: "число клиентов",
+      miniUpdatedLabel: "последнее обновление",
+      hUpload: "Отправка",
+      hDownload: "Загрузка",
+      hActiveTunnels: "Активные туннели",
+      hUptime: "Время работы",
+      hTotals: "Итого",
+      hEvents: "События",
+      hThroughput: "Пропускная способность",
+      legendUp: "вверх",
+      legendDown: "вниз",
+      hProxyWhitelist: "Прокси и whitelist",
+      hWhitelistPresets: "Пресеты whitelist",
+      hListener: "Слушатель",
+      listenerHint: "Перепривязка порта слушателя без перезапуска.",
+      hTrafficLimit: "Лимит трафика",
+      hBandwidthCap: "Лимит пропускной",
+      hConnectionCaps: "Ограничения подключений",
+      hGeoipLookup: "GeoIP поиск",
+      hSocksCreds: "Учётные данные SOCKS5",
+      hKillSwitch: "Аварийный стоп",
+      hTopDestinations: "Топ направлений",
+      hConnectedClients: "Подключённые клиенты",
+      hConfigGenerator: "Генератор конфигов",
+      btnResetTraffic: "Сбросить трафик",
+      btnCheckUpstream: "Проверить upstream",
+      btnKillNow: "Остановить",
+      btnGenerate: "Сгенерировать",
+      btnUseMyIp: "Использовать мой локальный IP",
+      noLimitSet: "лимит не задан",
+      noBandwidthCap: "лимит пропускной не задан · все туннели делят общий лимит",
+      noCapsSet: "лимиты подключений не заданы",
+      connGlobal: "глобально",
+      connPerClient: "на клиента",
+      connRefused: "отклонено",
+      upstreamClickHint: "Нажмите, чтобы проверить upstream и узнать публичный IP.",
+      upstreamChecking: "Проверка upstream через IP API…",
+      upstreamDownRequest: "DOWN · ошибка запроса"
+    }
+  };
+  let currentLang = "en";
+  const tr = key => ((I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key);
+
   const setGauge = (ringId, valueId, pct) => {
     const ring = $(ringId), value = $(valueId);
     const p = Math.max(0, Math.min(100, Number(pct) || 0));
@@ -975,7 +1444,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 
   const renderHosts = hosts => {
     const tb = $("hosts");
-    if (!hosts.length) { tb.innerHTML = '<tr><td colspan="7" class="muted">no traffic yet</td></tr>'; return; }
+    if (!hosts.length) { tb.innerHTML = `<tr><td colspan="7" class="muted">no traffic yet</td></tr>`; return; }
     const mx = Math.max(1, ...hosts.map(h => h.up + h.down));
     const flagOf = cc => {
       if (!cc || cc.length !== 2) return "";
@@ -1003,7 +1472,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 
   const renderClients = clients => {
     const tb = $("clients");
-    if (!clients.length) { tb.innerHTML = '<tr><td colspan="7" class="muted">no clients yet</td></tr>'; return; }
+    if (!clients.length) { tb.innerHTML = `<tr><td colspan="7" class="muted">no clients yet</td></tr>`; return; }
     const mx = Math.max(1, ...clients.map(c => c.bytes_up + c.bytes_down));
     tb.innerHTML = clients.map((c,i) => {
       const total = c.bytes_up + c.bytes_down, ratio = total / mx;
@@ -1103,49 +1572,123 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   $("connTotalInput").addEventListener("input", () => connTotalDirty = true);
   $("connPerInput").addEventListener("input", () => connPerDirty = true);
 
-  // ---------- theme toggle ----------
+  // ---------- theme selector ----------
   const themeModeLabel = $("themeModeLabel");
-  const syncThemeSwatches = palette => {
-    document.querySelectorAll(".theme-swatch").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.palette === palette);
-    });
+  const themeLauncher = $("themeLauncher");
+  const themePanel = $("themePanel");
+  const themeOptions = document.querySelectorAll(".theme-option");
+  const themeFontButtons = document.querySelectorAll("#themeFonts .theme-mode-btn");
+  const themeModeButtons = document.querySelectorAll("#themeModes .theme-mode-btn");
+  const THEME_PALETTES = ["aurora", "ocean", "emerald", "sunset", "rose", "cyber", "forest", "violet", "mono", "lava"];
+  const THEME_FONTS = ["default", "pro", "readable", "modern", "classic", "rounded", "editorial", "terminal", "neat", "persian"];
+
+  const getEffectiveTheme = mode => {
+    const m = (mode || "dark").toLowerCase();
+    if (m !== "auto") return (m === "light" ? "light" : "dark");
+    return (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches)
+      ? "light"
+      : "dark";
   };
-  const applyTheme = (t, palette) => {
-    const nextTheme = t || document.documentElement.getAttribute("data-theme") || "dark";
-    const nextPalette = palette || document.documentElement.getAttribute("data-accent") || "aurora";
-    document.documentElement.setAttribute("data-theme", nextTheme);
+
+  const syncThemeControls = (mode, palette, font) => {
+    themeModeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
+    themeOptions.forEach(btn => btn.classList.toggle("active", btn.dataset.palette === palette));
+    themeFontButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.font === font));
+    if (themeModeLabel) themeModeLabel.textContent = `${mode} · ${palette} · ${font}`;
+  };
+
+  const applyTheme = (mode, palette, font, persist=true) => {
+    const nextMode = mode || localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
+    const nextPalette = palette || localStorage.getItem("s5palette") || "aurora";
+    const nextFont = font || localStorage.getItem("s5font") || "default";
+    const effectiveTheme = getEffectiveTheme(nextMode);
+    document.documentElement.setAttribute("data-theme", effectiveTheme);
     document.documentElement.setAttribute("data-accent", nextPalette);
-    try {
-      localStorage.setItem("s5theme", nextTheme);
-      localStorage.setItem("s5palette", nextPalette);
-    } catch(e) {}
-    const icon = $("themeIcon");
-    if (themeModeLabel) themeModeLabel.textContent = nextTheme === "light" ? "Light" : "Dark";
-    syncThemeSwatches(nextPalette);
-    if (!icon) return;
-    if (nextTheme === "light") {
-      // Sun icon
-      icon.innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/>';
-    } else {
-      icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    document.documentElement.setAttribute("data-font", THEME_FONTS.includes(nextFont) ? nextFont : "default");
+    syncThemeControls(nextMode, nextPalette, THEME_FONTS.includes(nextFont) ? nextFont : "default");
+    if (persist) {
+      try {
+        localStorage.setItem("s5themePref", nextMode);
+        localStorage.setItem("s5theme", effectiveTheme);
+        localStorage.setItem("s5palette", nextPalette);
+        localStorage.setItem("s5font", THEME_FONTS.includes(nextFont) ? nextFont : "default");
+      } catch(e) {}
     }
     requestAnimationFrame(() => draw(lastSparkUp, lastSparkDown));
   };
-  applyTheme(
-    document.documentElement.getAttribute("data-theme") || "dark",
-    document.documentElement.getAttribute("data-accent") || "aurora",
-  );
-  $("themeBtn").addEventListener("click", () => {
-    const cur = document.documentElement.getAttribute("data-theme") || "dark";
-    const palette = document.documentElement.getAttribute("data-accent") || "aurora";
-    applyTheme(cur === "dark" ? "light" : "dark", palette);
+
+  const toggleThemePanel = force => {
+    const open = typeof force === "boolean" ? force : !themePanel.classList.contains("open");
+    themePanel.classList.toggle("open", open);
+    themeLauncher.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  themeLauncher.addEventListener("click", e => {
+    e.stopPropagation();
+    toggleThemePanel();
   });
-  document.querySelectorAll(".theme-swatch").forEach(btn => {
+
+  document.addEventListener("click", e => {
+    if (!themePanel.classList.contains("open")) return;
+    if (themePanel.contains(e.target) || themeLauncher.contains(e.target)) return;
+    toggleThemePanel(false);
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") toggleThemePanel(false);
+  });
+
+  themeModeButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      const theme = document.documentElement.getAttribute("data-theme") || "dark";
-      applyTheme(theme, btn.dataset.palette || "aurora");
+      const palette = document.documentElement.getAttribute("data-accent") || "aurora";
+      const font = document.documentElement.getAttribute("data-font") || "default";
+      applyTheme(btn.dataset.mode || "dark", palette, font, true);
     });
   });
+
+  themeOptions.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const mode = localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
+      const font = document.documentElement.getAttribute("data-font") || "default";
+      applyTheme(mode, btn.dataset.palette || "aurora", font, true);
+    });
+  });
+
+  themeFontButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const mode = localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
+      const palette = document.documentElement.getAttribute("data-accent") || "aurora";
+      applyTheme(mode, palette, btn.dataset.font || "default", true);
+    });
+  });
+
+  $("themeRandom").addEventListener("click", () => {
+    const mode = localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
+    const current = document.documentElement.getAttribute("data-accent") || "aurora";
+    const font = document.documentElement.getAttribute("data-font") || "default";
+    const pool = THEME_PALETTES.filter(x => x !== current);
+    const next = pool[Math.floor(Math.random() * pool.length)] || "aurora";
+    applyTheme(mode, next, font, true);
+  });
+
+  const initialMode = localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
+  const initialPalette = localStorage.getItem("s5palette") || document.documentElement.getAttribute("data-accent") || "aurora";
+  const initialFont = localStorage.getItem("s5font") || document.documentElement.getAttribute("data-font") || "default";
+  applyTheme(initialMode, initialPalette, initialFont, false);
+
+  try {
+    if (window.matchMedia) {
+      window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
+        const mode = localStorage.getItem("s5themePref") || "dark";
+        if (mode === "auto") applyTheme(
+          mode,
+          document.documentElement.getAttribute("data-accent") || "aurora",
+          document.documentElement.getAttribute("data-font") || "default",
+          false,
+        );
+      });
+    }
+  } catch(e) {}
 
   const post = async (action, params={}) => {
     try {
