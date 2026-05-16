@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="720" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#08111f"/>
+      <stop offset="1" stop-color="#13142a"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A2131"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5AC8FA"/>
+      <stop offset="0.5" stop-color="#D2A0FF"/>
+      <stop offset="1" stop-color="#FF9650"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <circle cx="140" cy="120" r="180" fill="#5AC8FA" opacity="0.18" filter="url(#glow)"/>
+  <circle cx="1180" cy="650" r="220" fill="#D2A0FF" opacity="0.14" filter="url(#glow)"/>
+
+  <rect x="120" y="56" width="1040" height="56" rx="16" fill="url(#panel)" stroke="#2C3650"/>
+  <rect x="136" y="72" width="210" height="24" rx="12" fill="url(#accent)" opacity="0.22"/>
+  <text x="148" y="88" fill="#E6EDF3" font-family="Segoe UI, Arial" font-size="14" font-weight="600">SOCKS5 relay · live traffic</text>
+  <text x="1008" y="88" fill="#8B949E" font-family="Consolas, monospace" font-size="12">Theme: Aurora</text>
+
+  <rect x="120" y="134" width="1040" height="128" rx="16" fill="url(#panel)" stroke="#2C3650"/>
+  <text x="144" y="162" fill="#8B949E" font-family="Segoe UI, Arial" font-size="12">SERVER RESOURCES</text>
+  <g transform="translate(148,182)">
+    <circle cx="50" cy="26" r="34" stroke="#2C3650" stroke-width="10"/>
+    <circle cx="50" cy="26" r="34" stroke="#5AC8FA" stroke-width="10" stroke-linecap="round" stroke-dasharray="135 214" transform="rotate(-90 50 26)"/>
+    <text x="34" y="32" fill="#E6EDF3" font-family="Consolas, monospace" font-size="14">63%</text>
+  </g>
+  <g transform="translate(420,182)">
+    <circle cx="50" cy="26" r="34" stroke="#2C3650" stroke-width="10"/>
+    <circle cx="50" cy="26" r="34" stroke="#D2A0FF" stroke-width="10" stroke-linecap="round" stroke-dasharray="118 214" transform="rotate(-90 50 26)"/>
+    <text x="34" y="32" fill="#E6EDF3" font-family="Consolas, monospace" font-size="14">55%</text>
+  </g>
+  <g transform="translate(692,182)">
+    <circle cx="50" cy="26" r="34" stroke="#2C3650" stroke-width="10"/>
+    <circle cx="50" cy="26" r="34" stroke="#F0C864" stroke-width="10" stroke-linecap="round" stroke-dasharray="74 214" transform="rotate(-90 50 26)"/>
+    <text x="34" y="32" fill="#E6EDF3" font-family="Consolas, monospace" font-size="14">35%</text>
+  </g>
+  <g transform="translate(964,182)">
+    <circle cx="50" cy="26" r="34" stroke="#2C3650" stroke-width="10"/>
+    <circle cx="50" cy="26" r="34" stroke="#FF9650" stroke-width="10" stroke-linecap="round" stroke-dasharray="160 214" transform="rotate(-90 50 26)"/>
+    <text x="34" y="32" fill="#E6EDF3" font-family="Consolas, monospace" font-size="14">74%</text>
+  </g>
+
+  <rect x="120" y="282" width="330" height="130" rx="16" fill="url(#panel)" stroke="#2C3650"/>
+  <text x="144" y="312" fill="#8B949E" font-family="Segoe UI, Arial" font-size="12">UPLOAD</text>
+  <text x="144" y="350" fill="#FF9650" font-family="Consolas, monospace" font-size="34" font-weight="700">1.24 MB/s</text>
+
+  <rect x="475" y="282" width="330" height="130" rx="16" fill="url(#panel)" stroke="#2C3650"/>
+  <text x="499" y="312" fill="#8B949E" font-family="Segoe UI, Arial" font-size="12">DOWNLOAD</text>
+  <text x="499" y="350" fill="#5AC8FA" font-family="Consolas, monospace" font-size="34" font-weight="700">3.87 MB/s</text>
+
+  <rect x="830" y="282" width="330" height="130" rx="16" fill="url(#panel)" stroke="#2C3650"/>
+  <text x="854" y="312" fill="#8B949E" font-family="Segoe UI, Arial" font-size="12">ACTIVE TUNNELS</text>
+  <text x="854" y="350" fill="#D2A0FF" font-family="Consolas, monospace" font-size="34" font-weight="700">128</text>
+
+  <rect x="120" y="432" width="1040" height="212" rx="16" fill="url(#panel)" stroke="#2C3650"/>
+  <text x="144" y="462" fill="#8B949E" font-family="Segoe UI, Arial" font-size="12">THROUGHPUT</text>
+  <polyline points="150,595 240,560 330,574 420,520 510,536 600,498 690,516 780,474 870,502 960,458 1050,476 1140,440"
+            fill="none" stroke="#5AC8FA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="150,610 240,602 330,588 420,592 510,570 600,578 690,564 780,568 870,542 960,548 1050,532 1140,540"
+            fill="none" stroke="#FF9650" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="120" y="690" fill="#6E7681" font-family="Segoe UI, Arial" font-size="12">Dashboard preview (illustrative) · themes: Aurora, Ocean, Emerald, Sunset, Rose</text>
+</svg>
