@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import ctypes
 import json
 import logging
 import os
 import secrets
 import shutil
+import threading
 import time
 from typing import Optional
 
@@ -30,6 +32,124 @@ _SESSION_TTL: float = 12 * 3600.0
 _COOKIE_NAME: str = "socks5_dash_sid"
 _PANEL_IP_RESTRICTED: bool = False
 _PANEL_ALLOWED_IPS: set[str] = set()
+_WIN_CPU_LOCK = threading.Lock()
+_WIN_CPU_LAST: tuple[int, int, int] | None = None
+_WIN_CPU_LAST_PCT: float = 0.0
+
+
+class _FILETIME(ctypes.Structure):
+    _fields_ = [
+        ("dwLowDateTime", ctypes.c_uint32),
+        ("dwHighDateTime", ctypes.c_uint32),
+    ]
+
+
+class _MEMORYSTATUSEX(ctypes.Structure):
+    _fields_ = [
+        ("dwLength", ctypes.c_uint32),
+        ("dwMemoryLoad", ctypes.c_uint32),
+        ("ullTotalPhys", ctypes.c_uint64),
+        ("ullAvailPhys", ctypes.c_uint64),
+        ("ullTotalPageFile", ctypes.c_uint64),
+        ("ullAvailPageFile", ctypes.c_uint64),
+        ("ullTotalVirtual", ctypes.c_uint64),
+        ("ullAvailVirtual", ctypes.c_uint64),
+        ("ullAvailExtendedVirtual", ctypes.c_uint64),
+    ]
+
+
+def _ft_to_int(ft: _FILETIME) -> int:
+    return (int(ft.dwHighDateTime) << 32) | int(ft.dwLowDateTime)
+
+
+def _windows_cpu_percent() -> float:
+    global _WIN_CPU_LAST, _WIN_CPU_LAST_PCT
+    try:
+        kernel32 = ctypes.windll.kernel32
+        idle_ft = _FILETIME()
+        kernel_ft = _FILETIME()
+        user_ft = _FILETIME()
+        ok = kernel32.GetSystemTimes(
+            ctypes.byref(idle_ft),
+            ctypes.byref(kernel_ft),
+            ctypes.byref(user_ft),
+        )
+        if not ok:
+            return _WIN_CPU_LAST_PCT
+        idle = _ft_to_int(idle_ft)
+        kernel = _ft_to_int(kernel_ft)
+        user = _ft_to_int(user_ft)
+    except Exception:
+        return _WIN_CPU_LAST_PCT
+
+    with _WIN_CPU_LOCK:
+        if _WIN_CPU_LAST is None:
+            t0 = time.perf_counter()
+            idle2, kernel2, user2 = idle, kernel, user
+            while (time.perf_counter() - t0) < 0.03:
+                pass
+            try:
+                idle_ft2 = _FILETIME()
+                kernel_ft2 = _FILETIME()
+                user_ft2 = _FILETIME()
+                ok2 = ctypes.windll.kernel32.GetSystemTimes(
+                    ctypes.byref(idle_ft2),
+                    ctypes.byref(kernel_ft2),
+                    ctypes.byref(user_ft2),
+                )
+                if ok2:
+                    idle2 = _ft_to_int(idle_ft2)
+                    kernel2 = _ft_to_int(kernel_ft2)
+                    user2 = _ft_to_int(user_ft2)
+            except Exception:
+                pass
+
+            d_idle = max(0, idle2 - idle)
+            d_kernel = max(0, kernel2 - kernel)
+            d_user = max(0, user2 - user)
+            d_total = d_kernel + d_user
+            if d_total > 0:
+                busy = max(0, d_total - d_idle)
+                _WIN_CPU_LAST_PCT = max(0.0, min(100.0, (busy / d_total) * 100.0))
+            else:
+                _WIN_CPU_LAST_PCT = 0.0
+            _WIN_CPU_LAST = (idle2, kernel2, user2)
+            return _WIN_CPU_LAST_PCT
+
+        prev_idle, prev_kernel, prev_user = _WIN_CPU_LAST
+        delta_idle = max(0, idle - prev_idle)
+        delta_kernel = max(0, kernel - prev_kernel)
+        delta_user = max(0, user - prev_user)
+        total = delta_kernel + delta_user
+        if total <= 0:
+            pct = _WIN_CPU_LAST_PCT
+        else:
+            busy = max(0, total - delta_idle)
+            pct = (busy / total) * 100.0
+        pct = max(0.0, min(100.0, float(pct)))
+        _WIN_CPU_LAST = (idle, kernel, user)
+        _WIN_CPU_LAST_PCT = pct
+        return pct
+
+
+def _windows_memory_snapshot() -> tuple[int, int, int, int]:
+    try:
+        mem = _MEMORYSTATUSEX()
+        mem.dwLength = ctypes.sizeof(_MEMORYSTATUSEX)
+        ok = ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(mem))
+        if not ok:
+            return 0, 0, 0, 0
+
+        ram_total = int(mem.ullTotalPhys)
+        ram_used = max(0, ram_total - int(mem.ullAvailPhys))
+
+        total_page_only = max(0, int(mem.ullTotalPageFile) - int(mem.ullTotalPhys))
+        avail_page_only = max(0, int(mem.ullAvailPageFile) - int(mem.ullAvailPhys))
+        swap_total = total_page_only
+        swap_used = max(0, swap_total - avail_page_only)
+        return ram_total, ram_used, swap_total, swap_used
+    except Exception:
+        return 0, 0, 0, 0
 
 
 def set_web_auth(enabled: bool, username: str, password: str) -> None:
@@ -179,32 +299,38 @@ def _geo_for(host_port: str) -> dict[str, str]:
 def _system_snapshot_dict() -> dict:
     cpu_count = max(1, os.cpu_count() or 1)
     cpu_percent = 0.0
-    try:
-        load1 = os.getloadavg()[0]
-        cpu_percent = max(0.0, min(100.0, (load1 / cpu_count) * 100.0))
-    except (AttributeError, OSError):
-        cpu_percent = 0.0
+    if os.name == "nt":
+        cpu_percent = _windows_cpu_percent()
+    else:
+        try:
+            load1 = os.getloadavg()[0]
+            cpu_percent = max(0.0, min(100.0, (load1 / cpu_count) * 100.0))
+        except (AttributeError, OSError):
+            cpu_percent = 0.0
 
     ram_total = 0
     ram_used = 0
     swap_total = 0
     swap_used = 0
 
-    try:
-        with open("/proc/meminfo", "r", encoding="utf-8") as fh:
-            meminfo: dict[str, int] = {}
-            for line in fh:
-                key, _, rest = line.partition(":")
-                val = rest.strip().split()[0] if rest.strip() else "0"
-                meminfo[key] = int(val) * 1024
-        ram_total = int(meminfo.get("MemTotal", 0))
-        mem_available = int(meminfo.get("MemAvailable", 0))
-        ram_used = max(0, ram_total - mem_available)
-        swap_total = int(meminfo.get("SwapTotal", 0))
-        swap_free = int(meminfo.get("SwapFree", 0))
-        swap_used = max(0, swap_total - swap_free)
-    except (OSError, ValueError):
-        pass
+    if os.name == "nt":
+        ram_total, ram_used, swap_total, swap_used = _windows_memory_snapshot()
+    else:
+        try:
+            with open("/proc/meminfo", "r", encoding="utf-8") as fh:
+                meminfo: dict[str, int] = {}
+                for line in fh:
+                    key, _, rest = line.partition(":")
+                    val = rest.strip().split()[0] if rest.strip() else "0"
+                    meminfo[key] = int(val) * 1024
+            ram_total = int(meminfo.get("MemTotal", 0))
+            mem_available = int(meminfo.get("MemAvailable", 0))
+            ram_used = max(0, ram_total - mem_available)
+            swap_total = int(meminfo.get("SwapTotal", 0))
+            swap_free = int(meminfo.get("SwapFree", 0))
+            swap_used = max(0, swap_total - swap_free)
+        except (OSError, ValueError):
+            pass
 
     disk_path = os.getcwd()
     if os.name == "nt":
