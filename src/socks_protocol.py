@@ -271,11 +271,12 @@ async def relay_stream(
     client_stats: "ClientStats | None" = None,
 ) -> None:
     try:
-            batched_bytes = 0
-            batched_host_bytes = 0
-            batched_client_bytes = 0
-            last_update_ts = time.monotonic()
-            update_interval = 0.1
+        is_upstream = direction == "up"
+        batched_bytes = 0
+        batched_host_bytes = 0
+        batched_client_bytes = 0
+        last_update_ts = time.monotonic()
+        update_interval = 0.1
 
         def _flush_stats(now: float) -> None:
             nonlocal batched_bytes, batched_host_bytes, batched_client_bytes
@@ -307,7 +308,7 @@ async def relay_stream(
             data = await source.read(BUFFER_SIZE)
             if not data:
                 _flush_stats(time.monotonic())
-                
+
                 if destination.can_write_eof() and not destination.is_closing():
                     try:
                         destination.write_eof()
@@ -319,7 +320,7 @@ async def relay_stream(
             batched_bytes += n
             batched_host_bytes += n if host_stats is not None else 0
             batched_client_bytes += n if client_stats is not None else 0
-            
+
             now = time.monotonic()
             if now - last_update_ts >= update_interval:
                 _flush_stats(now)
