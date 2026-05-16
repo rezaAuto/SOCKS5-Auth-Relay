@@ -1070,6 +1070,10 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     return `${x}s`;
   };
   const fmtPct = n => `${Math.max(0, Math.min(100, Number(n) || 0)).toFixed( Number(n) >= 10 || Number(n) === 0 ? 0 : 2)}%`;
+  const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[ch]));
+  const escapeAttr = escapeHtml;
 
   const I18N = {
     en: {
@@ -1444,10 +1448,10 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     tb.innerHTML = hosts.map((h,i) => {
       const total = h.up + h.down, ratio = total / mx;
       const flag = flagOf((h.cc || "").toUpperCase());
-      const countryTitle = h.country ? ` title="${h.country}"` : "";
+      const countryTitle = h.country ? ` title="${escapeAttr(h.country)}"` : "";
       const hostCell = flag
-        ? `<span${countryTitle} style="margin-right:6px">${flag}</span><span class="mono">${h.host}</span>`
-        : `<span class="mono">${h.host}</span>`;
+        ? `<span${countryTitle} style="margin-right:6px">${escapeHtml(flag)}</span><span class="mono">${escapeHtml(h.host)}</span>`
+        : `<span class="mono">${escapeHtml(h.host)}</span>`;
       return `<tr>
         <td><span class="dot ${h.active>0?'on':'off'}"></span></td>
         <td class="mono muted">${i+1}</td>
@@ -1469,7 +1473,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       return `<tr>
         <td><span class="dot ${c.active_tunnels>0?'on':'off'}"></span></td>
         <td class="mono muted">${i+1}</td>
-        <td class="mono">${c.ip}</td>
+        <td class="mono">${escapeHtml(c.ip)}</td>
         <td class="mono up" style="text-align:right">${fmtBytes(c.bytes_up)}</td>
         <td class="mono down" style="text-align:right">${fmtBytes(c.bytes_down)}</td>
         <td class="mono acc" style="text-align:right">${c.active_tunnels}</td>
@@ -1678,7 +1682,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     }
   } catch(e) {}
 
-  const post = async (action, params={}) => {
+  const post = async (action, params={}, refresh=true) => {
     try {
       const r = await fetch("/api/control", {
         method:"POST", headers:{"Content-Type":"application/json"},
@@ -1686,9 +1690,18 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       });
       const j = await r.json().catch(()=>({}));
       if (!j.ok) console.warn("control failed", action, j);
-      tick();
+      if (refresh) tick();
       return j;
     } catch(e) { console.warn("control error", e); return {}; }
+  };
+
+  const loadCredentials = async () => {
+    const j = await post("get_credentials", {}, false);
+    if (j && j.ok) {
+      window.__liveUser = j.username || "";
+      window.__livePass = j.password || "";
+    }
+    return j || {};
   };
 
   const applyControls = (c, totalBytes) => {
@@ -1725,12 +1738,15 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     if (!portDirty) $("portInput").value = c.listen_port || "";
 
     const u = c.username || "";
-    const pw = c.password || "";
+    const pw = window.__livePass || "";
+    const pwSet = !!c.password_set || !!pw;
+    window.__liveUser = u || window.__liveUser || "";
     $("currentUser").textContent = u || "—";
     $("credsUser").textContent = u || "—";
-    window.__livePass = pw;
     const revealed = window.__credsRevealed === true;
-    $("credsPass").textContent = revealed ? (pw || "—") : (pw ? "•".repeat(Math.min(pw.length, 12)) : "—");
+    $("credsPass").textContent = revealed
+      ? (pw || (pwSet ? "click Show to load" : "—"))
+      : (pwSet ? "•".repeat(pw ? Math.min(pw.length, 12) : 8) : "—");
     if (!userDirty) $("userInput").value = u;
 
     const lim = c.traffic_limit_bytes || 0;
@@ -1904,20 +1920,28 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     const p = $("passInput");
     p.type = (p.type === "password") ? "text" : "password";
   });
-  $("credsReveal").addEventListener("click", () => {
+  $("credsReveal").addEventListener("click", async () => {
     window.__credsRevealed = !window.__credsRevealed;
     $("credsRevealLabel").textContent = window.__credsRevealed ? "Hide" : "Show";
+    if (!window.__credsRevealed) {
+      window.__livePass = "";
+    }
+    if (window.__credsRevealed && !window.__livePass) {
+      await loadCredentials();
+    }
     const pw = window.__livePass || "";
     $("credsPass").textContent = window.__credsRevealed
       ? (pw || "—")
       : (pw ? "•".repeat(Math.min(pw.length, 12)) : "—");
   });
   $("credsCopy").addEventListener("click", async () => {
-    const u = $("credsUser").textContent.trim();
+    if (!window.__livePass) await loadCredentials();
+    const u = window.__liveUser || $("credsUser").textContent.trim();
     const pw = window.__livePass || "";
     if (!u || !pw) return;
     try {
       await navigator.clipboard.writeText(u + ":" + pw);
+      if (!window.__credsRevealed) window.__livePass = "";
       const btn = $("credsCopy");
       const prev = btn.innerHTML;
       btn.innerHTML = "✓ copied";
@@ -1950,6 +1974,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     if (j && j.ok) {
       $("passInput").value = "";
       $("passInput").type = "password";
+      window.__livePass = "";
       userDirty = false;
       st.textContent = "✓ credentials updated — user=" + (j.username || username) + " — dropped " + (j.dropped || 0) + " tunnel(s)";
       st.style.color = "var(--good)";
@@ -1962,18 +1987,19 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     }
   });
 
-  const cfgBuild = () => {
+  const cfgBuild = async () => {
     const host = ($("cfgHost").value || "").trim();
     const port = parseInt($("cfgPort").value, 10);
     const tag  = ($("cfgTag").value || "socks-relay").trim() || "socks-relay";
     const st   = $("cfgStatus");
-    const user = (lastCtrl && lastCtrl.username) || "";
-    const pass = (lastCtrl && lastCtrl.password) || "";
     if (!host || !port || port < 1 || port > 65535) {
       st.textContent = "✖ enter a valid host and port";
       st.style.color = "var(--bad)";
       return;
     }
+    const creds = await loadCredentials();
+    const user = (creds && creds.username) || (lastCtrl && lastCtrl.username) || "";
+    const pass = (creds && creds.password) || "";
     if (!user || !pass) {
       st.textContent = "✖ server credentials not loaded yet";
       st.style.color = "var(--bad)";
@@ -2050,6 +2076,7 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     $("outCurl").textContent =
       `curl -x socks5h://${enc(user)}:${enc(pwShown)}@${host}:${port} https://ifconfig.me\n` +
       `curl --proxy-user ${user}:${pwShown} --socks5-hostname ${host}:${port} https://api.ipify.org`;
+    if (!window.__credsRevealed) window.__livePass = "";
   };
 
   $("cfgBuildBtn").addEventListener("click", cfgBuild);

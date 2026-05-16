@@ -50,6 +50,7 @@ def prompt_required_value(prompt: str, *, secret: bool = False, strip: bool = Fa
 
 
 def detect_current_user_ip() -> str:
+    ssh_client = os.environ.get("SSH_CLIENT", "")
     if ssh_client:
         parts = ssh_client.split()
         if parts:

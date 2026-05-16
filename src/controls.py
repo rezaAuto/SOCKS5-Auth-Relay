@@ -373,6 +373,17 @@ async def apply_control_action(action: str, params: dict) -> dict:
             loop.call_later(0.15, plane.trigger_kill)
         return {"ok": True, "killed": True}
 
+    if action == "get_credentials":
+        if plane is None:
+            return {"ok": False, "error": "control plane not ready"}
+        try:
+            user = str(plane.get_username() or "")
+            pw = str(plane.get_password() or "")
+        except Exception as exc:
+            LOGGER.exception("get_credentials failed")
+            return {"ok": False, "error": f"credential read failed: {exc}"}
+        return {"ok": bool(user and pw), "username": user, "password": pw}
+
     if action == "set_credentials":
         user = str(params.get("username", "")).strip()
         pw = str(params.get("password", ""))

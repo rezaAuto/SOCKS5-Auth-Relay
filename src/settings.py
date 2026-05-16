@@ -26,9 +26,9 @@ class AppSettings:
     upstream_port: int = 1080
     proxy_ip_listen: str = "0.0.0.0"
     proxy_port: int = 2080
-    site_ip_listen: str = "0.0.0.0"
+    site_ip_listen: str = "127.0.0.1"
     site_port: int = 5656
-    login_need: bool = False
+    login_need: bool = True
     login_user: str = "admin"
     login_password: str = "change-me"
     default_socks_user: str = "socksuser"

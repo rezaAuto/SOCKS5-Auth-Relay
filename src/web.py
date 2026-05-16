@@ -147,6 +147,8 @@ def set_panel_ip_acl(restricted: bool, allowed_ips: list[str]) -> None:
     _PANEL_ALLOWED_IPS = {str(ip).strip() for ip in (allowed_ips or []) if str(ip).strip()}
     if _PANEL_IP_RESTRICTED:
         LOGGER.info("Web dashboard IP ACL enabled for: %s", ", ".join(sorted(_PANEL_ALLOWED_IPS)) or "<none>")
+        if not _PANEL_ALLOWED_IPS:
+            LOGGER.warning("Web dashboard IP ACL has no allowed IPs; all dashboard requests will be denied")
     else:
         LOGGER.info("Web dashboard IP ACL disabled")
 
@@ -344,7 +346,7 @@ def _stats_snapshot_dict(listen_addr: str, upstream_addr: str) -> dict:
 
 def _controls_snapshot_dict() -> dict:
     username = ""
-    password = ""
+    password_set = False
     plane = get_control_plane()
     if plane is not None:
         try:
@@ -352,9 +354,9 @@ def _controls_snapshot_dict() -> dict:
         except Exception:
             username = ""
         try:
-            password = plane.get_password() or ""
+            password_set = bool(plane.get_password() or "")
         except Exception:
-            password = ""
+            password_set = False
     return {
         "proxy_enabled": CONTROLS.proxy_enabled,
         "whitelist_enabled": CONTROLS.whitelist_enabled,
@@ -379,7 +381,7 @@ def _controls_snapshot_dict() -> dict:
         "listen_host": CONTROLS.listen_host,
         "listen_port": CONTROLS.listen_port,
         "username": username,
-        "password": password,
+        "password_set": password_set,
     }
 
 
@@ -397,28 +399,27 @@ async def _web_handle_client(
     except Exception:
         pass
 
-    if _PANEL_IP_RESTRICTED and _PANEL_ALLOWED_IPS:
-        if client_ip not in _PANEL_ALLOWED_IPS:
-            LOGGER.warning(
-                "Dashboard request denied by IP ACL: client_ip=%s allowed=%s",
-                client_ip or "<unknown>",
-                ",".join(sorted(_PANEL_ALLOWED_IPS)) or "<none>",
-            )
-            denied_resp = (
-                b"HTTP/1.1 403 Forbidden\r\n"
-                b"Content-Type: text/plain; charset=utf-8\r\n"
-                b"Connection: close\r\n"
-                b"Content-Length: 29\r\n\r\n"
-                b"Access denied: IP not allowed"
-            )
-            try:
-                writer.write(denied_resp)
-                await writer.drain()
-            except Exception:
-                pass
-            finally:
-                await close_writer(writer)
-            return
+    if _PANEL_IP_RESTRICTED and client_ip not in _PANEL_ALLOWED_IPS:
+        LOGGER.warning(
+            "Dashboard request denied by IP ACL: client_ip=%s allowed=%s",
+            client_ip or "<unknown>",
+            ",".join(sorted(_PANEL_ALLOWED_IPS)) or "<none>",
+        )
+        denied_resp = (
+            b"HTTP/1.1 403 Forbidden\r\n"
+            b"Content-Type: text/plain; charset=utf-8\r\n"
+            b"Connection: close\r\n"
+            b"Content-Length: 29\r\n\r\n"
+            b"Access denied: IP not allowed"
+        )
+        try:
+            writer.write(denied_resp)
+            await writer.drain()
+        except Exception:
+            pass
+        finally:
+            await close_writer(writer)
+        return
 
     def _resp(status: str, body: bytes, ctype: str, extra_headers: str = "") -> bytes:
         return (

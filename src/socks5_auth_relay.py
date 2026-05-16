@@ -24,6 +24,7 @@ from utils import (
 )
 
 LOGGER = logging.getLogger("socks5_auth_relay")
+SOCKS_HANDSHAKE_TIMEOUT: Final[float] = 10.0
 
 
 from stats import HostStats, STATS, ClientStats
@@ -68,6 +69,30 @@ def _raise_fd_limit() -> None:
             LOGGER.debug("RLIMIT_NOFILE already at hard cap: %d", hard)
     except Exception as exc:
         LOGGER.warning("Could not raise RLIMIT_NOFILE: %s", exc)
+
+
+def _is_loopback_bind_host(host: str) -> bool:
+    h = (host or "").strip().strip("[]").lower()
+    if h == "localhost":
+        return True
+    if h in {"", "0.0.0.0", "::"}:
+        return False
+    try:
+        return ipaddress.ip_address(h).is_loopback
+    except ValueError:
+        return False
+
+
+def _looks_like_default_secret(value: str) -> bool:
+    return (value or "").strip().lower() in {
+        "",
+        "admin",
+        "change-me",
+        "changeme",
+        "password",
+        "123456",
+        "12345678",
+    }
 
 
 class AuthenticatedSocksRelay:
@@ -210,8 +235,14 @@ class AuthenticatedSocksRelay:
                 self._per_client_active[client_ip] = self._per_client_active.get(client_ip, 0) + 1
                 client_counted = True
 
-            await authenticate_client(client_reader, client_writer, self.credentials)
-            request = await read_client_request(client_reader)
+            await asyncio.wait_for(
+                authenticate_client(client_reader, client_writer, self.credentials),
+                timeout=SOCKS_HANDSHAKE_TIMEOUT,
+            )
+            request = await asyncio.wait_for(
+                read_client_request(client_reader),
+                timeout=SOCKS_HANDSHAKE_TIMEOUT,
+            )
             LOGGER.debug("client %s requested %s:%d", peername, request.destination, request.port)
 
             if not CONTROLS.proxy_enabled:
@@ -305,6 +336,9 @@ class AuthenticatedSocksRelay:
 
         except SilentClientDisconnect:
             LOGGER.debug("client %s disconnected before sending any SOCKS data", peername)
+        except asyncio.TimeoutError:
+            STATS.errors += 1
+            LOGGER.debug("SOCKS handshake timed out for %s", peername)
         except SocksRequestError as exc:
             STATS.errors += 1
             if exc.reply_code in (
@@ -884,10 +918,14 @@ async def run_server(args: argparse.Namespace) -> None:
     await _bind_socks(args.listen_port)
     LOGGER.info("Upstream SOCKS5 proxy: %s:%d", args.upstream_host, args.upstream_port)
 
+    dashboard_login_enabled = bool(getattr(args, "login_need", False))
+    dashboard_user = getattr(args, "login_user", "") or ""
+    dashboard_password = getattr(args, "login_password", "") or ""
+
     set_web_auth(
-        enabled=bool(getattr(args, "login_need", False)),
-        username=getattr(args, "login_user", "") or "",
-        password=getattr(args, "login_password", "") or "",
+        enabled=dashboard_login_enabled,
+        username=dashboard_user,
+        password=dashboard_password,
     )
 
     panel_restricted = bool(getattr(args, "panel_ip_restricted", False))
@@ -907,19 +945,33 @@ async def run_server(args: argparse.Namespace) -> None:
 
     web_server: asyncio.base_events.Server | None = None
     if getattr(args, "web_port", 0):
-        try:
-            web_server = await start_web_dashboard(
-                host=args.web_host,
-                port=args.web_port,
-                listen_addr=f"{args.listen_host}:{args.listen_port}",
-                upstream_addr=f"{args.upstream_host}:{args.upstream_port}",
+        dashboard_is_public = not _is_loopback_bind_host(args.web_host)
+        if dashboard_is_public and not dashboard_login_enabled and not panel_restricted:
+            LOGGER.error(
+                "Web dashboard disabled - refusing to expose %s:%d without login or IP ACL",
+                args.web_host,
+                args.web_port,
             )
-        except OSError as exc:
-            LOGGER.warning(
-                "Web dashboard disabled — cannot bind %s:%d (%s)",
-                args.web_host, args.web_port, exc,
-            )
-            web_server = None
+        else:
+            if (dashboard_is_public and dashboard_login_enabled and not panel_restricted
+                    and (_looks_like_default_secret(dashboard_user)
+                         or _looks_like_default_secret(dashboard_password))):
+                LOGGER.warning(
+                    "Web dashboard is exposed without IP ACL and uses weak/default login credentials"
+                )
+            try:
+                web_server = await start_web_dashboard(
+                    host=args.web_host,
+                    port=args.web_port,
+                    listen_addr=f"{args.listen_host}:{args.listen_port}",
+                    upstream_addr=f"{args.upstream_host}:{args.upstream_port}",
+                )
+            except OSError as exc:
+                LOGGER.warning(
+                    "Web dashboard disabled — cannot bind %s:%d (%s)",
+                    args.web_host, args.web_port, exc,
+                )
+                web_server = None
 
     sampler_task = asyncio.create_task(stats_sampler_loop())
 
