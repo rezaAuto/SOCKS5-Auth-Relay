@@ -315,45 +315,77 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--title-font)}
 .header-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
 .theme-tools{position:relative;display:flex;align-items:center;justify-content:flex-end}
-.theme-launcher{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;
-  border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.04),transparent),var(--panel);
-  color:var(--text);font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
-  box-shadow:var(--sh-sm),var(--sh-inset);transition:border-color .2s ease,box-shadow .2s ease,transform .15s ease}
+.theme-launcher{display:inline-flex;align-items:center;gap:9px;padding:7px 10px;border-radius:999px;
+  border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.01)),var(--panel);
+  color:var(--text);font-size:11px;cursor:pointer;box-shadow:var(--sh-sm),var(--sh-inset);
+  transition:border-color .2s ease,box-shadow .2s ease,transform .15s ease}
 .theme-launcher:hover{transform:translateY(-1px);border-color:var(--down);box-shadow:var(--sh-md),var(--sh-inset),0 0 14px rgba(90,200,250,.12)}
-.theme-launcher .chip{width:18px;height:18px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
-  background:linear-gradient(135deg,var(--down),var(--accent),var(--up));box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.theme-launcher .mode{color:var(--muted)}
-.theme-panel{position:absolute;top:calc(100% + 10px);right:0;z-index:20;min-width:310px;max-width:360px;
-  border:1px solid var(--border);border-radius:14px;padding:12px;
-  background:linear-gradient(180deg,rgba(255,255,255,.04),transparent),var(--panel2);
-  box-shadow:var(--sh-lg),var(--sh-inset);backdrop-filter:blur(10px);
-  opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;
-  transition:opacity .18s ease,transform .18s ease}
+.theme-launcher[aria-expanded="true"]{border-color:rgba(90,200,250,.45);box-shadow:var(--sh-md),var(--glow-down)}
+.theme-launcher .chip{width:20px;height:20px;border-radius:999px;border:1px solid rgba(255,255,255,.2);
+  background:linear-gradient(135deg,var(--down),var(--accent),var(--up));box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 8px rgba(0,0,0,.3)}
+.theme-launcher-copy{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.theme-launcher-copy > span:first-child{font-size:10px;line-height:1;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.theme-launcher .mode{font-size:11px;line-height:1.15;color:var(--text);letter-spacing:.02em;text-transform:none;white-space:nowrap}
+.theme-caret{width:7px;height:7px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);
+  transform:rotate(45deg) translateY(-2px);transition:transform .18s ease,border-color .18s ease}
+.theme-launcher[aria-expanded="true"] .theme-caret{transform:rotate(225deg) translate(-1px,-1px);border-color:var(--down)}
+.theme-panel{position:absolute;top:calc(100% + 10px);right:0;z-index:20;width:min(92vw,430px);max-width:430px;
+  border:1px solid var(--border);border-radius:14px;padding:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.015)),var(--panel2);
+  box-shadow:var(--sh-lg),var(--sh-inset);backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);opacity:0;transform:translateY(-6px) scale(.98);
+  pointer-events:none;transition:opacity .18s ease,transform .18s ease}
 .theme-panel.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
-.theme-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.theme-head b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.theme-random{padding:5px 9px !important;font-size:11px !important}
-.theme-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
-.theme-mode-btn{border:1px solid var(--border);border-radius:9px;padding:7px 6px;background:rgba(255,255,255,.02);color:var(--muted);
-  font-size:11px;cursor:pointer;transition:all .18s ease;text-transform:uppercase;letter-spacing:.06em}
-.theme-mode-btn:hover{color:var(--text);border-color:var(--down)}
-.theme-mode-btn.active{color:#fff;border-color:rgba(90,200,250,.45);background:linear-gradient(180deg,rgba(90,200,250,.2),rgba(90,200,250,.07));box-shadow:0 0 12px rgba(90,200,250,.16)}
-.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.theme-option{display:flex;align-items:center;gap:8px;width:100%;border:1px solid var(--border);border-radius:11px;
-  padding:8px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent);color:var(--text);
+.theme-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.theme-head b{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.theme-summary{display:block;margin-top:3px;font-size:12px;color:var(--text)}
+.theme-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.theme-random,.theme-reset{padding:5px 9px !important;font-size:11px !important}
+.theme-preview{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:10px;
+  border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:12px;
+  background:linear-gradient(135deg,rgba(90,200,250,.08),rgba(210,160,255,.08) 48%,rgba(255,150,80,.06))}
+.theme-preview-swatch{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(135deg,var(--down),var(--accent),var(--up));box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 18px rgba(0,0,0,.24)}
+.theme-preview b{display:block;font-size:13px;color:var(--text);line-height:1.2}
+.theme-preview-text{display:block;margin-top:2px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-section{margin-top:12px}
+.theme-section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;
+  font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.theme-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.theme-mode-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;
+  border:1px solid var(--border);border-radius:9px;padding:7px 8px;background:rgba(255,255,255,.025);color:var(--muted);
+  font-size:11px;cursor:pointer;transition:all .18s ease;text-transform:uppercase;letter-spacing:.05em}
+.theme-mode-btn:hover{color:var(--text);border-color:var(--down);background:rgba(90,200,250,.055)}
+.theme-mode-btn.active{color:#fff;border-color:rgba(90,200,250,.48);background:linear-gradient(180deg,rgba(90,200,250,.2),rgba(90,200,250,.07));box-shadow:0 0 0 1px rgba(90,200,250,.14),0 0 12px rgba(90,200,250,.16)}
+.theme-mode-icon{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:6px;
+  background:rgba(255,255,255,.06);color:var(--down);font-size:10px;line-height:1}
+.theme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.theme-option{position:relative;display:flex;align-items:center;gap:9px;width:100%;min-height:54px;border:1px solid var(--border);border-radius:11px;
+  padding:8px 30px 8px 8px;background:linear-gradient(180deg,rgba(255,255,255,.035),transparent);color:var(--text);
   cursor:pointer;transition:all .18s ease;text-align:left}
-.theme-option:hover{border-color:var(--accent);transform:translateY(-1px)}
-.theme-option.active{border-color:rgba(210,160,255,.5);box-shadow:0 0 0 1px rgba(210,160,255,.22),0 0 14px rgba(210,160,255,.16)}
-.theme-dot{width:22px;height:22px;border-radius:999px;border:1px solid rgba(255,255,255,.18);flex:0 0 22px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 2px 8px rgba(0,0,0,.28)}
+.theme-option:hover{border-color:var(--accent);transform:translateY(-1px);background:linear-gradient(180deg,rgba(255,255,255,.055),transparent)}
+.theme-option.active{border-color:rgba(210,160,255,.55);box-shadow:0 0 0 1px rgba(210,160,255,.22),0 0 14px rgba(210,160,255,.16)}
+.theme-option.active::after{content:"✓";position:absolute;right:9px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;border-radius:999px;display:grid;place-items:center;font-size:10px;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--down));box-shadow:0 0 10px rgba(90,200,250,.22)}
+.theme-dot{width:24px;height:24px;border-radius:999px;border:1px solid rgba(255,255,255,.18);flex:0 0 24px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 8px rgba(0,0,0,.28)}
 .theme-dot.aurora{background:linear-gradient(135deg,#5ac8fa,#d2a0ff,#ff9650)}
 .theme-dot.ocean{background:linear-gradient(135deg,#38bdf8,#7dd3fc,#22d3ee)}
 .theme-dot.emerald{background:linear-gradient(135deg,#34d399,#10b981,#fbbf24)}
 .theme-dot.sunset{background:linear-gradient(135deg,#fb923c,#f472b6,#a78bfa)}
 .theme-dot.rose{background:linear-gradient(135deg,#f472b6,#2dd4bf,#fb7185)}
+.theme-dot.cyber{background:linear-gradient(135deg,#22d3ee,#a78bfa,#f97316)}
+.theme-dot.forest{background:linear-gradient(135deg,#10b981,#14b8a6,#84cc16)}
+.theme-dot.violet{background:linear-gradient(135deg,#8b5cf6,#c084fc,#fb7185)}
+.theme-dot.mono{background:linear-gradient(135deg,#d4d4d4,#a3a3a3,#f5f5f5)}
+.theme-dot.lava{background:linear-gradient(135deg,#ef4444,#f97316,#fb7185)}
 .theme-option .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
 .theme-option .meta b{font-size:12px;line-height:1.1}
-.theme-option .meta span{font-size:10px;color:var(--muted);line-height:1.1}
+.theme-option .meta span{font-size:10px;color:var(--muted);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#themeFonts{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+#themeFonts .theme-mode-btn{justify-content:flex-start;text-align:left;text-transform:none;letter-spacing:0;min-height:40px}
+#themeFonts .theme-mode-btn::after{content:attr(data-sample);margin-left:auto;color:var(--dim);font-size:10px;letter-spacing:0;text-transform:none}
 .theme-subtitle{margin:8px 0 6px;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
 .theme-mode-label{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 .title .sub{color:var(--muted);font-size:12px;margin-top:2px}
@@ -591,7 +623,17 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
 .sys-meta b{font-size:13px;letter-spacing:.02em}
 .sys-meta span{font-size:12px;color:var(--muted);font-family:var(--mono)}
 @media(max-width:980px){.sys-grid{grid-template-columns:repeat(2,minmax(180px,1fr))}}
-@media(max-width:640px){.sys-grid{grid-template-columns:1fr}}
+@media(max-width:640px){
+  .sys-grid{grid-template-columns:1fr}
+  .theme-tools{width:100%;justify-content:flex-start}
+  .theme-launcher{max-width:100%}
+  .theme-panel{position:fixed;left:12px;right:12px;top:76px;width:auto;max-width:none;
+    max-height:calc(100vh - 96px);overflow:auto}
+  .theme-head{align-items:stretch;flex-direction:column}
+  .theme-actions{width:100%}
+  .theme-actions .btn{flex:1}
+  .theme-grid,#themeFonts{grid-template-columns:1fr !important}
+}
 </style>
 </head>
 <body>
@@ -611,44 +653,67 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       <div class="theme-tools">
         <button class="theme-launcher" id="themeLauncher" type="button" title="Open Theme Studio" aria-expanded="false">
           <span class="chip"></span>
-          <span id="themeStudioLabel">Theme Studio</span>
-          <span class="mode" id="themeModeLabel">dark · aurora</span>
+          <span class="theme-launcher-copy">
+            <span id="themeStudioLabel">Theme Studio</span>
+            <span class="mode" id="themeModeLabel">dark · aurora</span>
+          </span>
+          <span class="theme-caret" aria-hidden="true"></span>
         </button>
         <div class="theme-panel" id="themePanel" aria-label="Theme selector">
           <div class="theme-head">
-            <b id="themeSelectorTitle">Theme selector</b>
-            <button class="btn ghost theme-random" id="themeRandom" type="button">Random</button>
+            <div>
+              <b id="themeSelectorTitle">Theme selector</b>
+              <span class="theme-summary" id="themeSummary">Dark · Aurora · Default</span>
+            </div>
+            <div class="theme-actions">
+              <button class="btn ghost theme-random" id="themeRandom" type="button">Random</button>
+              <button class="btn ghost theme-reset" id="themeReset" type="button">Reset</button>
+            </div>
           </div>
-          <div class="theme-modes" id="themeModes">
-            <button class="theme-mode-btn" type="button" data-mode="auto">Auto</button>
-            <button class="theme-mode-btn" type="button" data-mode="dark">Dark</button>
-            <button class="theme-mode-btn" type="button" data-mode="light">Light</button>
+          <div class="theme-preview" aria-hidden="true">
+            <span class="theme-preview-swatch"></span>
+            <span>
+              <b id="themePreviewTitle">SOCKS5 relay</b>
+              <span class="theme-preview-text" id="themePreviewText">Dark · Aurora · Default</span>
+            </span>
           </div>
-          <div class="theme-subtitle" id="themeSubtitlePalette">Palette</div>
-          <div class="theme-grid" id="themeGrid">
-            <button class="theme-option" type="button" data-palette="aurora"><span class="theme-dot aurora"></span><span class="meta"><b>Aurora</b><span>neon night</span></span></button>
-            <button class="theme-option" type="button" data-palette="ocean"><span class="theme-dot ocean"></span><span class="meta"><b>Ocean</b><span>cool blue</span></span></button>
-            <button class="theme-option" type="button" data-palette="emerald"><span class="theme-dot emerald"></span><span class="meta"><b>Emerald</b><span>clean green</span></span></button>
-            <button class="theme-option" type="button" data-palette="sunset"><span class="theme-dot sunset"></span><span class="meta"><b>Sunset</b><span>warm glow</span></span></button>
-            <button class="theme-option" type="button" data-palette="rose"><span class="theme-dot rose"></span><span class="meta"><b>Rose</b><span>pink mint</span></span></button>
-            <button class="theme-option" type="button" data-palette="cyber"><span class="theme-dot cyber" style="background:linear-gradient(135deg,#22d3ee,#a78bfa,#f97316)"></span><span class="meta"><b>Cyber</b><span>arcade glow</span></span></button>
-            <button class="theme-option" type="button" data-palette="forest"><span class="theme-dot forest" style="background:linear-gradient(135deg,#10b981,#14b8a6,#84cc16)"></span><span class="meta"><b>Forest</b><span>nature vibe</span></span></button>
-            <button class="theme-option" type="button" data-palette="violet"><span class="theme-dot violet" style="background:linear-gradient(135deg,#8b5cf6,#c084fc,#fb7185)"></span><span class="meta"><b>Violet</b><span>dreamy purple</span></span></button>
-            <button class="theme-option" type="button" data-palette="mono"><span class="theme-dot mono" style="background:linear-gradient(135deg,#d4d4d4,#a3a3a3,#f5f5f5)"></span><span class="meta"><b>Mono</b><span>minimal steel</span></span></button>
-            <button class="theme-option" type="button" data-palette="lava"><span class="theme-dot lava" style="background:linear-gradient(135deg,#ef4444,#f97316,#fb7185)"></span><span class="meta"><b>Lava</b><span>hot energy</span></span></button>
+          <div class="theme-section">
+            <div class="theme-section-title" id="themeSubtitleMode">Mode</div>
+            <div class="theme-modes" id="themeModes">
+              <button class="theme-mode-btn" type="button" data-mode="auto"><span class="theme-mode-icon">A</span>Auto</button>
+              <button class="theme-mode-btn" type="button" data-mode="dark"><span class="theme-mode-icon">D</span>Dark</button>
+              <button class="theme-mode-btn" type="button" data-mode="light"><span class="theme-mode-icon">L</span>Light</button>
+            </div>
           </div>
-          <div class="theme-subtitle" id="themeSubtitleFont">Font pack (local only)</div>
-          <div class="theme-modes" id="themeFonts" style="grid-template-columns:repeat(4,1fr)">
-            <button class="theme-mode-btn" type="button" data-font="default">Default</button>
-            <button class="theme-mode-btn" type="button" data-font="pro">Pro UI</button>
-            <button class="theme-mode-btn" type="button" data-font="readable">Readable</button>
-            <button class="theme-mode-btn" type="button" data-font="modern">Modern</button>
-            <button class="theme-mode-btn" type="button" data-font="classic">Classic</button>
-            <button class="theme-mode-btn" type="button" data-font="rounded">Rounded</button>
-            <button class="theme-mode-btn" type="button" data-font="editorial">Editorial</button>
-            <button class="theme-mode-btn" type="button" data-font="terminal">Terminal</button>
-            <button class="theme-mode-btn" type="button" data-font="neat">Neat</button>
-            <button class="theme-mode-btn" type="button" data-font="persian">Persian</button>
+          <div class="theme-section">
+            <div class="theme-section-title" id="themeSubtitlePalette">Palette</div>
+            <div class="theme-grid" id="themeGrid">
+              <button class="theme-option" type="button" data-palette="aurora"><span class="theme-dot aurora"></span><span class="meta"><b>Aurora</b><span>neon night</span></span></button>
+              <button class="theme-option" type="button" data-palette="ocean"><span class="theme-dot ocean"></span><span class="meta"><b>Ocean</b><span>cool blue</span></span></button>
+              <button class="theme-option" type="button" data-palette="emerald"><span class="theme-dot emerald"></span><span class="meta"><b>Emerald</b><span>clean green</span></span></button>
+              <button class="theme-option" type="button" data-palette="sunset"><span class="theme-dot sunset"></span><span class="meta"><b>Sunset</b><span>warm glow</span></span></button>
+              <button class="theme-option" type="button" data-palette="rose"><span class="theme-dot rose"></span><span class="meta"><b>Rose</b><span>pink mint</span></span></button>
+              <button class="theme-option" type="button" data-palette="cyber"><span class="theme-dot cyber"></span><span class="meta"><b>Cyber</b><span>arcade glow</span></span></button>
+              <button class="theme-option" type="button" data-palette="forest"><span class="theme-dot forest"></span><span class="meta"><b>Forest</b><span>nature vibe</span></span></button>
+              <button class="theme-option" type="button" data-palette="violet"><span class="theme-dot violet"></span><span class="meta"><b>Violet</b><span>dreamy purple</span></span></button>
+              <button class="theme-option" type="button" data-palette="mono"><span class="theme-dot mono"></span><span class="meta"><b>Mono</b><span>minimal steel</span></span></button>
+              <button class="theme-option" type="button" data-palette="lava"><span class="theme-dot lava"></span><span class="meta"><b>Lava</b><span>hot energy</span></span></button>
+            </div>
+          </div>
+          <div class="theme-section">
+            <div class="theme-section-title" id="themeSubtitleFont">Font pack</div>
+            <div class="theme-modes" id="themeFonts">
+              <button class="theme-mode-btn" type="button" data-font="default" data-sample="Aa">Default</button>
+              <button class="theme-mode-btn" type="button" data-font="pro" data-sample="Aa">Pro UI</button>
+              <button class="theme-mode-btn" type="button" data-font="readable" data-sample="Aa">Readable</button>
+              <button class="theme-mode-btn" type="button" data-font="modern" data-sample="Aa">Modern</button>
+              <button class="theme-mode-btn" type="button" data-font="classic" data-sample="Aa">Classic</button>
+              <button class="theme-mode-btn" type="button" data-font="rounded" data-sample="Aa">Rounded</button>
+              <button class="theme-mode-btn" type="button" data-font="editorial" data-sample="Aa">Editorial</button>
+              <button class="theme-mode-btn" type="button" data-font="terminal" data-sample="01">Terminal</button>
+              <button class="theme-mode-btn" type="button" data-font="neat" data-sample="Aa">Neat</button>
+              <button class="theme-mode-btn" type="button" data-font="persian" data-sample="فا">Persian</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1566,6 +1631,8 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
   $("connPerInput").addEventListener("input", () => connPerDirty = true);
 
   const themeModeLabel = $("themeModeLabel");
+  const themeSummary = $("themeSummary");
+  const themePreviewText = $("themePreviewText");
   const themeLauncher = $("themeLauncher");
   const themePanel = $("themePanel");
   const themeOptions = document.querySelectorAll(".theme-option");
@@ -1582,28 +1649,50 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
       : "dark";
   };
 
+  const themeName = value => String(value || "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, ch => ch.toUpperCase());
+
   const syncThemeControls = (mode, palette, font) => {
-    themeModeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
-    themeOptions.forEach(btn => btn.classList.toggle("active", btn.dataset.palette === palette));
-    themeFontButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.font === font));
-    if (themeModeLabel) themeModeLabel.textContent = `${mode} · ${palette} · ${font}`;
+    const label = `${themeName(mode)} · ${themeName(palette)} · ${themeName(font)}`;
+    themeModeButtons.forEach(btn => {
+      const active = btn.dataset.mode === mode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    themeOptions.forEach(btn => {
+      const active = btn.dataset.palette === palette;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    themeFontButtons.forEach(btn => {
+      const active = btn.dataset.font === font;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    if (themeModeLabel) themeModeLabel.textContent = `${themeName(mode)} · ${themeName(palette)}`;
+    if (themeSummary) themeSummary.textContent = label;
+    if (themePreviewText) themePreviewText.textContent = label;
   };
 
   const applyTheme = (mode, palette, font, persist=true) => {
-    const nextMode = mode || localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
-    const nextPalette = palette || localStorage.getItem("s5palette") || "aurora";
-    const nextFont = font || localStorage.getItem("s5font") || "default";
+    const requestedMode = mode || localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
+    const requestedPalette = palette || localStorage.getItem("s5palette") || "aurora";
+    const requestedFont = font || localStorage.getItem("s5font") || "default";
+    const nextMode = ["auto", "dark", "light"].includes(requestedMode) ? requestedMode : "dark";
+    const nextPalette = THEME_PALETTES.includes(requestedPalette) ? requestedPalette : "aurora";
+    const nextFont = THEME_FONTS.includes(requestedFont) ? requestedFont : "default";
     const effectiveTheme = getEffectiveTheme(nextMode);
     document.documentElement.setAttribute("data-theme", effectiveTheme);
     document.documentElement.setAttribute("data-accent", nextPalette);
-    document.documentElement.setAttribute("data-font", THEME_FONTS.includes(nextFont) ? nextFont : "default");
-    syncThemeControls(nextMode, nextPalette, THEME_FONTS.includes(nextFont) ? nextFont : "default");
+    document.documentElement.setAttribute("data-font", nextFont);
+    syncThemeControls(nextMode, nextPalette, nextFont);
     if (persist) {
       try {
         localStorage.setItem("s5themePref", nextMode);
         localStorage.setItem("s5theme", effectiveTheme);
         localStorage.setItem("s5palette", nextPalette);
-        localStorage.setItem("s5font", THEME_FONTS.includes(nextFont) ? nextFont : "default");
+        localStorage.setItem("s5font", nextFont);
       } catch(e) {}
     }
     requestAnimationFrame(() => draw(lastSparkUp, lastSparkDown));
@@ -1661,6 +1750,16 @@ pre.console::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1b2733,#
     const pool = THEME_PALETTES.filter(x => x !== current);
     const next = pool[Math.floor(Math.random() * pool.length)] || "aurora";
     applyTheme(mode, next, font, true);
+  });
+
+  $("themeReset").addEventListener("click", () => {
+    try {
+      localStorage.removeItem("s5themePref");
+      localStorage.removeItem("s5theme");
+      localStorage.removeItem("s5palette");
+      localStorage.removeItem("s5font");
+    } catch(e) {}
+    applyTheme("dark", "aurora", "default", true);
   });
 
   const initialMode = localStorage.getItem("s5themePref") || localStorage.getItem("s5theme") || "dark";
