@@ -1,0 +1,20 @@
+{
+  "upstream_proxy": "127.0.0.1",
+  "upstream_port": 1080,
+  "proxy_ip_listen": "0.0.0.0",
+  "proxy_port": 2080,
+  "site_ip_listen": "0.0.0.0",
+  "site_port": 5656,
+  "login_need": false,
+  "login_user": "admin",
+  "login_password": "change-me",
+  "default_socks_user": "socksuser",
+  "default_socks_password": "change-me",
+  "bandwidth_limit_kbps": 0,
+  "max_conn_total": 0,
+  "max_conn_per_client": 0,
+  "geoip_enabled": false,
+  "auth_required": true,
+  "panel_ip_restricted": true,
+  "allowed_panel_ips": []
+}
