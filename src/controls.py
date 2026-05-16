@@ -273,11 +273,42 @@ async def apply_control_action(action: str, params: dict) -> dict:
                 CONTROLS.max_conn_per_client = max(0, int(params["per_client"]))
         except (TypeError, ValueError):
             return {"ok": False, "error": "invalid connection cap value"}
+
+        dropped = 0
+        total_violation = (
+            CONTROLS.max_conn_total > 0
+            and int(getattr(STATS, "active", 0) or 0) > CONTROLS.max_conn_total
+        )
+        per_violation = False
+        if CONTROLS.max_conn_per_client > 0:
+            try:
+                per_violation = any(
+                    int(getattr(cs, "active_tunnels", 0) or 0) > CONTROLS.max_conn_per_client
+                    for cs in (getattr(STATS, "clients", {}) or {}).values()
+                )
+            except Exception:
+                per_violation = False
+
+        if (total_violation or per_violation) and plane is not None:
+            try:
+                dropped = int(plane.drop_tunnels() or 0)
+                if dropped:
+                    LOGGER.info(
+                        "connection caps enforced immediately: dropped %d active tunnel writer(s)",
+                        dropped,
+                    )
+            except Exception:
+                LOGGER.debug("drop_tunnels on conn cap update failed", exc_info=True)
+
         LOGGER.info(
             "connection caps updated: total=%d per_client=%d",
             CONTROLS.max_conn_total, CONTROLS.max_conn_per_client,
         )
-        return {"ok": True}
+        return {
+            "ok": True,
+            "dropped": dropped,
+            "enforced_now": bool(dropped),
+        }
 
     if action == "set_geoip":
         flag = bool(params.get("enabled", False))
